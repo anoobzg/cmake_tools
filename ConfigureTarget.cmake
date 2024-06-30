@@ -17,8 +17,9 @@ set(CMAKE_MODULE_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 set(global_all_targets)
 set(global_all_targets "" CACHE STRING INTERNAL FORCE)
+set(global_cache_libs "" CACHE STRING INTERNAL FORCE)
 
-set(MACOS_PREFIX "${PROJECT_NAME}.app/Contents")
+set(MACOS_PREFIX "${BUNDLE_NAME}.app/Contents")
 set(MACOS_INSTALL_RUNTIME_DIR "${MACOS_PREFIX}/MacOS")
 set(MACOS_INSTALL_CMAKE_DIR "${MACOS_PREFIX}/Resources")
 set(MACOS_INSTALL_PLUGIN_DIR "${MACOS_PREFIX}/PlugIns")
@@ -124,6 +125,12 @@ macro(__add_target target)
 	set(global_all_targets ${global_all_targets} CACHE STRING INTERNAL FORCE)
 endmacro()
 
+macro(__cache_lib_target target)
+	list(APPEND global_cache_libs ${target})
+	list(REMOVE_DUPLICATES global_cache_libs)
+	set(global_cache_libs ${global_cache_libs} CACHE STRING INTERNAL FORCE)
+endmacro()
+
 macro(__configure_all)
 	foreach(target ${global_all_targets})
 		configure_target(${target})
@@ -143,7 +150,8 @@ include(Dependency)
 
 #target function
 function(__add_real_target target type)
-	cmake_parse_arguments(target "SOURCE_FOLDER;OPENMP;DEPLOYQT;MAC_DEPLOYQT" "" "SOURCE;INC;LIB;DEF;DEP;INTERFACE;FOLDER;PCH;OBJ;QTUI;QTQRC;MAC_ICON;MAC_OUTPUTNAME;MAC_GUI_IDENTIFIER;QML_PLUGINS" ${ARGN})
+	cmake_parse_arguments(target "SOURCE_FOLDER;OPENMP;DEPLOYQT;MAC_DEPLOYQT;FORCE_DLL" ""
+		"SOURCE;INC;LIB;ILIB;DEF;DEP;INTERFACE;FOLDER;PCH;OBJ;QTUI;QTQRC;MAC_ICON;MAC_OUTPUT_NAME;MAC_GUI_IDENTIFIER;QML_PLUGINS;INTERFACE_DEF;GENERATED_SOURCE" ${ARGN})
 	if(target_SOURCE)
 		#target
 		#message(STATUS "target_SOURCE ${target_SOURCE}")
@@ -151,6 +159,7 @@ function(__add_real_target target type)
 		if(CXX_VLD_ENABLED STREQUAL "ON")
 			list(APPEND ExtraSrc ${CMAKE_SOURCE_DIR}/cmake/source/__vld.cpp)
 		endif()
+		
 		
 		message(STATUS "add test __add_real_target ${target}-----------------------> ${type}")
 		
@@ -166,12 +175,15 @@ function(__add_real_target target type)
 			qt5_add_resources(QT_QRC ${target_QTQRC})
 			list(APPEND target_SOURCE ${QT_QRC})
 		endif()
+		if(target_GENERATED_SOURCE)
+			list(APPEND target_SOURCE ${target_GENERATED_SOURCE})
+		endif()
 		
 		if(target_OPENMP)
 			if(TARGET OpenMP::OpenMP_CXX)
-				set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-				set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-				set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+				set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -permissive")
+				set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -permissive")
+				set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS} -permissive")
 			endif()
 		endif()
 		
@@ -184,15 +196,28 @@ function(__add_real_target target type)
 		endif()
 			
 		if(${type} STREQUAL "exe")
+			if(RENDER_DOC_ENABLED)
+				list(APPEND ExtraSrc ${CMAKE_SOURCE_DIR}/cmake/source/__renderdoc.cpp)
+			endif()
 			add_executable(${target} ${target_SOURCE} ${ExtraSrc})
 		elseif(${type} STREQUAL "winexe")
 			add_executable(${target} WIN32 ${target_SOURCE} ${ExtraSrc})
 		elseif(${type} STREQUAL "bundle")
 			add_executable(${target} MACOSX_BUNDLE ${target_SOURCE} ${ExtraSrc})
 		elseif(${type} STREQUAL "dll")
+			if(CC_BC_LINUX)
+				set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -shared")
+				set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -shared")
+			endif()
 			add_library(${target} SHARED ${target_SOURCE} ${ExtraSrc})
+			__cache_lib_target(${target})
 		elseif(${type} STREQUAL "lib")
+			if(CC_BC_LINUX)
+				set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -shared")
+				set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -shared")
+			endif()
 			add_library(${target} STATIC ${target_SOURCE} ${ExtraSrc})
+			__cache_lib_target(${target})
 		elseif(${type} STREQUAL "obj")
 			add_library(${target} OBJECT ${target_SOURCE})
 		else()
@@ -201,8 +226,8 @@ function(__add_real_target target type)
 		__add_target(${target})
 		
 		if(CC_BC_WIN AND ${type} STREQUAL "exe")
-			set_target_properties(${target} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-			set_target_properties(${target} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup")
+			 set_target_properties(${target} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+			 set_target_properties(${target} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup")
 		endif()
 		#message(STATUS "${target} set mac properties MACOSX_BUNDLE_GUI_IDENTIFIER ${target_MAC_GUI_IDENTIFIER}")
 		#if(target_MAC_DEPLOYQT)
@@ -212,10 +237,10 @@ function(__add_real_target target type)
 		    set_target_properties(${target} PROPERTIES
 				MACOSX_BUNDLE TRUE
 			)
-			if(target_MAC_OUTPUTNAME)
-				message(STATUS "${target} set mac properties OUTPUT_NAME ${target_MAC_OUTPUTNAME}")
+			if(target_MAC_OUTPUT_NAME)
+				message(STATUS "${target} set mac properties OUTPUT_NAME ${target_MAC_OUTPUT_NAME}")
 				set_target_properties(${target} PROPERTIES
-						OUTPUT_NAME ${target_MAC_OUTPUTNAME}
+						OUTPUT_NAME ${target_MAC_OUTPUT_NAME}
 				)
 			endif()
 			if(target_MAC_GUI_IDENTIFIER)
@@ -281,7 +306,7 @@ function(__add_real_target target type)
 								COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE_DIR:${plugin}>/${targetName}" "$<TARGET_FILE_DIR:${target}>/../Resources/qml/${plugin}/"
 								)
 						if(CMAKE_BUILD_TYPE MATCHES "Release")
-	                       	install(CODE "execute_process(COMMAND codesign --force --options=runtime -s \"${OSX_CODESIGN_IDENTITY}\"  	\"\${CMAKE_INSTALL_PREFIX}/${target}.app/Contents/Resources/qml/${plugin}/${targetName}\")")
+	                       	install(CODE "execute_process(COMMAND codesign --force --options=runtime -s \"${OSX_CODESIGN_IDENTITY}\"  	\"\${CMAKE_INSTALL_PREFIX}/${BUNDLE_NAME}.app/Contents/Resources/qml/${plugin}/${targetName}\")")
 						endif()
 					elseif(CC_BC_LINUX)
 					        #add_custom_command(TARGET ${target} POST_BUILD
@@ -296,14 +321,50 @@ function(__add_real_target target type)
 				endif()
 			endforeach()
 		endif()
-		if(target_LIB)
-			foreach(lib ${target_LIB})
-				target_link_libraries(${target} PRIVATE ${lib})
-				#message(STATUS ${lib}) 	
-			endforeach()
+		if(target_LIB OR target_ILIB)
+			set(_ILIBS)
+			set(_LIBS)
+			if(target_LIB)
+				set(_LIBS ${target_LIB})
+			endif()
+			if(target_ILIB)
+				set(_ILIBS ${target_ILIB})
+			endif()
+			
+			target_link_libraries(${target} PRIVATE ${_LIBS}
+											PUBLIC ${_ILIBS}
+											)
+											
+			message(STATUS "target ${target} -> public [${_ILIBS}] private [${_LIBS}]")
+			#foreach(lib ${target_LIB})
+			#	target_link_libraries(${target} PRIVATE ${lib})
+			#	#message(STATUS "target_link_libraries---" ${lib})
+			#	
+			#	#message(STATUS ${lib})
+			#	if(TARGET CONAN_PKG::${lib})
+			#		message(STATUS "${target} link conan lib [CONAN_PKG::${lib}]")
+			#		target_link_libraries(${target} PRIVATE CONAN_PKG::${lib})
+			#	endif()
+			#endforeach()
 		endif()
 		if(ANDROID)
 			target_link_libraries(${target} PRIVATE ${log-lib})
+		endif()
+		if(CC_GLOBAL_SPDLOG_ENABLED AND TARGET cxlog)
+			target_link_libraries(${target} PRIVATE cxlog)
+			target_compile_definitions(${target} PRIVATE CC_USE_SPDLOG)
+		endif()
+		if(CC_GLOBAL_SPDLOG_ENABLED AND TARGET cxlog_static)
+			target_link_libraries(${target} PRIVATE cxlog_static)
+			target_compile_definitions(${target} PRIVATE CC_USE_SPDLOG)
+		endif()
+		if(CC_GLOBAL_SHINY_ENABLED AND TARGET shiny)
+			target_link_libraries(${target} PRIVATE shiny)
+			target_compile_definitions(${target} PRIVATE CC_USE_SHINY)
+		endif()
+		if(CC_GLOBAL_SYSTEM_SUPPORT_ENABLED AND TARGET system_support)
+			target_link_libraries(${target} PRIVATE system_support)
+			target_compile_definitions(${target} PRIVATE CC_USE_SYSTEM_PROFILER)
 		endif()
 		#incs
 		if(target_INC)
@@ -318,6 +379,9 @@ function(__add_real_target target type)
 				target_compile_definitions(${target} PRIVATE ${def})
 				#message(STATUS ${def}) 	
 			endforeach()
+		endif()
+		if(target_INTERFACE_DEF)
+			set_property(TARGET ${target} PROPERTY INTERFACE_COMPILE_DEFINITIONS ${target_INTERFACE_DEF})
 		endif()
 		#dep
 		if(target_DEP)
@@ -341,6 +405,11 @@ function(__add_real_target target type)
 		if(target_OPENMP)
 			if(TARGET OpenMP::OpenMP_CXX)
 				target_link_libraries(${target} PRIVATE OpenMP::OpenMP_CXX)
+				if(CC_BC_WIN)
+					target_compile_options(${target} PUBLIC "-permissive")
+				elseif(CC_BC_MAC)
+					target_compile_options(${target} PUBLIC "-fpermissive")
+				endif()
 			endif()
 		endif()
 				
@@ -358,67 +427,92 @@ function(__add_real_target target type)
 		endif()
 
 		configure_target(${target})
-		
-		get_property(NOT_INSTALL_IMPORT GLOBAL PROPERTY GLOBAL_NOT_INSTALL_IMPORT)
-		if((CMAKE_BUILD_TYPE MATCHES "Release") AND (NOT NOT_INSTALL_IMPORT) AND (NOT ${type} STREQUAL "lib"))
-			if(CC_BC_WIN)
-				if(${type} STREQUAL "dll" OR ${type} STREQUAL "exe" OR ${type} STREQUAL "winexe")
-					INSTALL(TARGETS ${target} RUNTIME DESTINATION .)
-				endif()
-			elseif(CC_BC_MAC)
-				if(${type} STREQUAL "dll" OR ${type} STREQUAL "bundle" OR ${type} STREQUAL "exe")
-					INSTALL(TARGETS ${target}
-						BUNDLE DESTINATION . COMPONENT Runtime
-						RUNTIME DESTINATION ${MACOS_INSTALL_RUNTIME_DIR}
-						FRAMEWORK DESTINATION ${MACOS_INSTALL_LIB_DIR}
-						ARCHIVE DESTINATION ${MACOS_INSTALL_LIB_DIR}
-						LIBRARY DESTINATION ${MACOS_INSTALL_LIB_DIR}
-					)
-				endif()
-			elseif(CC_BC_LINUX)
-				if(${type} STREQUAL "dll" OR ${type} STREQUAL "exe")
-					get_target_property(DIR_NAME ${target} QML_PLUGIN_DIR_NAME)
-					if(NOT DIR_NAME)
-						INSTALL(TARGETS ${target} RUNTIME DESTINATION .
-									  LIBRARY DESTINATION ./lib/
-									  ARCHIVE DESTINATION .)
-					endif()
-				endif()
-				if(${type} STREQUAL "dll")
-					set_target_properties(${target} PROPERTIES INSTALL_RPATH "\\\${ORIGIN}")
-				elseif(${type} STREQUAL "exe")
-					set_target_properties(${target} PROPERTIES INSTALL_RPATH "\\\${ORIGIN}/lib")
-					if(target_DEPLOYQT)
-						include(DeployQt)
-						install(CODE "
-								MESSAGE(STATUS \"linuxdeploy install.\")
-								MESSAGE(STATUS \"target: ${CMAKE_INSTALL_PREFIX}/${target} \")
-								MESSAGE(STATUS \"qml entry : [${QML_ENTRY_DIR}]\")
-								#set(QMLDIR)
-								#if(EXISTS ${QML_ENTRY_DIR})
-								#	set(QMLDIR -qmldir=${QML_ENTRY_DIR})
-								#	message(STATUS \"qml import ${QMLDIR}\")
-								#endif()
-								execute_process(COMMAND ${LINUXDEPLOYQT_EXECUTABLE} ${CMAKE_INSTALL_PREFIX}/${target}
-            														-always-overwrite
-															-appimage
-															-unsupported-allow-new-glibc
-															-qmldir=${QML_ENTRY_DIR}
-															RESULT_VARIABLE CODE_RESULT
-										)
-								
-								message(STATUS \"end linuxdeploy ${CODE_RESULT}\")
-								#if(CODE_RESULT AND ${CODE_RESULT} EQUAL 0)
-								#	message(STATUS \"linuxdeploy success.\")
-								#else()
-								#	message(FATAL_ERROR \"linuxdeploy failed.\")
-								#endif()
-							     "
-							     )
-					endif()
-				endif()
-		        endif()
+		if(CC_BC_LINUX AND(CMAKE_BUILD_TYPE MATCHES "Release") AND (NOT ${type} STREQUAL "lib"))
+			if(${type} STREQUAL "dll")
+			    set_target_properties(${target} PROPERTIES INSTALL_RPATH "\\\$ORIGIN/")
+		    elseif(${type} STREQUAL "exe")
+			    set_target_properties(${target} PROPERTIES INSTALL_RPATH "\\\$ORIGIN/lib")
+			endif()
 		endif()
+		
+		if(CREATE_CONAN_PACKAGE)
+			INSTALL(TARGETS ${target}
+				RUNTIME DESTINATION bin
+				FRAMEWORK DESTINATION lib
+				ARCHIVE DESTINATION lib
+				LIBRARY DESTINATION lib
+			)			
+		else()
+			get_property(NOT_INSTALL_IMPORT GLOBAL PROPERTY GLOBAL_NOT_INSTALL_IMPORT)
+			if((CMAKE_BUILD_TYPE MATCHES "Release") AND (NOT ${type} STREQUAL "lib"))
+				if(CC_BC_WIN)
+					if(${type} STREQUAL "dll" OR ${type} STREQUAL "exe" OR ${type} STREQUAL "winexe")
+						INSTALL(TARGETS ${target} RUNTIME DESTINATION .)
+					endif()
+				elseif(CC_BC_MAC)
+					if(${type} STREQUAL "dll" OR ${type} STREQUAL "bundle" OR ${type} STREQUAL "exe")
+						INSTALL(TARGETS ${target}
+							BUNDLE DESTINATION . COMPONENT Runtime
+							RUNTIME DESTINATION ${MACOS_INSTALL_RUNTIME_DIR}
+							FRAMEWORK DESTINATION ${MACOS_INSTALL_LIB_DIR}
+							ARCHIVE DESTINATION ${MACOS_INSTALL_LIB_DIR}
+							LIBRARY DESTINATION ${MACOS_INSTALL_LIB_DIR}
+						)
+					endif()
+				elseif(CC_BC_LINUX)
+					if(${type} STREQUAL "dll" OR ${type} STREQUAL "exe")
+						get_target_property(DIR_NAME ${target} QML_PLUGIN_DIR_NAME)
+						if(NOT DIR_NAME)
+							if(CC_GLOBAL_PACKAGE_INSTALL)
+								INSTALL(TARGETS ${target} RUNTIME DESTINATION .
+											  LIBRARY DESTINATION ./lib/
+											  ARCHIVE DESTINATION ./)
+							else()
+								if(HAVE_CONAN_CACHE)
+									INSTALL(TARGETS ${target} RUNTIME DESTINATION .
+										LIBRARY DESTINATION ./lib/
+										ARCHIVE DESTINATION ./lib/)
+								else()
+									INSTALL(TARGETS ${target} RUNTIME DESTINATION .
+										  LIBRARY DESTINATION ./bin/Release/lib/
+										  ARCHIVE DESTINATION ./bin/Release/)
+								endif()
+							endif()
+						endif()
+					endif()
+						if(target_DEPLOYQT)
+							include(DeployQt)
+							install(CODE "
+									MESSAGE(STATUS \"linuxdeploy install.\")
+									MESSAGE(STATUS \"target: ${CMAKE_INSTALL_PREFIX}/${target} \")
+									MESSAGE(STATUS \"qml entry : [${QML_ENTRY_DIR}]\")
+									#set(QMLDIR)
+									#if(EXISTS ${QML_ENTRY_DIR})
+									#	set(QMLDIR -qmldir=${QML_ENTRY_DIR})
+									#	message(STATUS \"qml import ${QMLDIR}\")
+									#endif()
+									execute_process(COMMAND ${LINUXDEPLOYQT_EXECUTABLE} ${CMAKE_INSTALL_PREFIX}/${target}
+																		-always-overwrite
+																-appimage
+																-unsupported-allow-new-glibc
+																-qmldir=${QML_ENTRY_DIR}
+																RESULT_VARIABLE CODE_RESULT
+											)
+									
+									message(STATUS \"end linuxdeploy ${CODE_RESULT}\")
+									#if(CODE_RESULT AND ${CODE_RESULT} EQUAL 0)
+									#	message(STATUS \"linuxdeploy success.\")
+									#else()
+									#	message(FATAL_ERROR \"linuxdeploy failed.\")
+									#endif()
+									 "
+									 )
+						endif()
+					endif()
+			endif()
+		endif()
+		
+		message(STATUS "${target} CMAKE_CXX_FLAGS : ${CMAKE_CXX_FLAGS}")
 	else(target_SOURCE)
 		message("add target ${target} without sources")
 	endif(target_SOURCE)
@@ -449,7 +543,7 @@ macro(__add_platform_library target)
 		endif()
 	endif()
 	
-	if(CC_BUILD_IPHONE_PLATFORM OR CC_PLATFORM_STATIC_BUILD)
+	if(CC_BUILD_IPHONE_PLATFORM OR CC_PLATFORM_STATIC_BUILD OR CC_GLOBAL_FORCE_STATIC)
 		__add_real_target(${target} lib SOURCE ${SRCS} 
 										LIB ${LIBS}
 										INC ${INCS}
@@ -513,16 +607,26 @@ function(__add_shared_lib target)
 endfunction()
 
 macro(__import_target target type)
-	if (NOT TARGET ${target})		
+	if (NOT TARGET ${target})
+		cmake_parse_arguments(target "" ""
+			"INTERFACE_DEF" ${ARGN})
+			
 		if(${type} STREQUAL "dll")
+			add_library(${target} SHARED IMPORTED GLOBAL)
+		elseif(${type} STREQUAL "ndll")
 			add_library(${target} SHARED IMPORTED GLOBAL)
 		else()
 			add_library(${target} STATIC IMPORTED GLOBAL)
 		endif()
+		__cache_lib_target(${target})
 		
 		set_property(TARGET ${target} PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${${target}_INCLUDE_DIRS})
 		set_property(TARGET ${target} APPEND PROPERTY IMPORTED_CONFIGURATIONS "Debug")
 		set_property(TARGET ${target} APPEND PROPERTY IMPORTED_CONFIGURATIONS "Release")
+		
+		if(target_INTERFACE_DEF)
+			set_property(TARGET ${target} PROPERTY INTERFACE_COMPILE_DEFINITIONS ${target_INTERFACE_DEF})
+		endif()
 		
 		if(NOT CC_BC_LINUX)
 			set_target_properties(${target} PROPERTIES IMPORTED_IMPLIB_DEBUG ${${target}_LIBRARIES_DEBUG})
@@ -553,7 +657,7 @@ macro(__import_target target type)
 		
 		get_property(NOT_INSTALL_IMPORT GLOBAL PROPERTY GLOBAL_NOT_INSTALL_IMPORT)
 		message(STATUS "GLOBAL_NOT_INSTALL_IMPORT ---->[${NOT_INSTALL_IMPORT}]")
-		if((${type} STREQUAL "dll") AND NOT NOT_INSTALL_IMPORT)
+		if((${type} STREQUAL "dll" OR ${type} STREQUAL "ndll") AND NOT NOT_INSTALL_IMPORT)
 			__copy_find_targets(${target})
 		endif()
 	endif()
@@ -707,8 +811,26 @@ macro(__remap_target_debug_2_release targets)
 	endforeach()
 endmacro()
 
+macro(__add_include_interface package)
+	cmake_parse_arguments(package "" "" "INTERFACE;INTERFACE_DEF" ${ARGN})
+
+	set(INCS ${CMAKE_CURRENT_SOURCE_DIR})
+	if(package_INTERFACE)
+		set(INCS ${package_INTERFACE})
+	endif()
+	
+	if(NOT TARGET ${package})
+		add_library(${package} INTERFACE)
+		set_property(TARGET ${package} PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${INCS})
+		
+		if(package_INTERFACE_DEF)
+			set_property(TARGET ${package} PROPERTY INTERFACE_COMPILE_DEFINITIONS ${package_INTERFACE_DEF})
+		endif()
+	endif()
+endmacro()
+
 function(__add_emcc_target target)
-	cmake_parse_arguments(target "DEBUG" "IDLS;IDLINCS" "CSOURCE;LIBRARIES;WSAM_ARGS;" ${ARGN})
+	cmake_parse_arguments(target "DEBUG;WSAM_THREAD" "IDLS;IDLINCS" "CSOURCE;LIBRARIES;WSAM_ARGS;" ${ARGN})
 	set(LIBRARIES)
 	if(target_LIBRARIES)
 		#message(STATUS "__add_emcc_target LIBRARIES : ${target_LIBRARIES}")
@@ -784,9 +906,21 @@ function(__add_emcc_target target)
 		set(EXTRA_ARGS --post-js ${target_IDLS}.js ${EXTRA_ARGS})
 		message(STATUS ${EXTRA_ARGS})
 	endif()
-	
-	set(WARGS  #default args
-	    #-Wl,--shared-memory,--no-check-features
+	if(target_WSAM_THREAD)
+		set(WARGS  #default args
+			-Wl,--shared-memory,--no-check-features
+			-s MODULARIZE=1
+			-s ALLOW_MEMORY_GROWTH=0
+			-s EXPORTED_RUNTIME_METHODS=["addFunction","UTF8ToString","FS"]
+			#-s DISABLE_EXCEPTION_CATCHING=1
+			-s USE_PTHREADS=1
+			-s PTHREAD_POOL_SIZE=4
+			-s TOTAL_MEMORY=536870912
+			-s ENVIRONMENT=worker
+			-s NO_FILESYSTEM=0)
+	else()
+		set(WARGS  #default args
+		#-Wl,--shared-memory,--no-check-features
 		-s MODULARIZE=1
 		-s ALLOW_MEMORY_GROWTH=1
 		#-s TOTAL_MEMORY=512MB
@@ -802,6 +936,7 @@ function(__add_emcc_target target)
 		-s USE_SDL=0
 		-s ENVIRONMENT=worker
 		-s NO_FILESYSTEM=0)
+	endif()
 		
 	if(target_WSAM_ARGS)
 		#message(STATUS "__add_emcc_target WSAM_ARGS : ${target_WSAM_ARGS}")

@@ -1,6 +1,11 @@
+include(Global)
+include(log)
+
 include(CCBuildSystem)
 
+include(lib)
 include(git)
+include(conan)
 
 include(ConfigureTarget)
 
@@ -30,3 +35,6 @@ include(render/RenderEntry)
 if(CC_BC_EMCC)
 	include(emcc)
 endif()
+
+include(unitTesting)
+

@@ -1,3 +1,5 @@
+include(BuildInfoUtil)
+
 macro(__source_recurse dir src)
 	file(GLOB_RECURSE _tmp_list ${dir}/*.h ${dir}/*.hpp ${dir}/*.cpp ${dir}/*.c ${dir}/*.inl)
 	set(${src} ${_tmp_list})
@@ -64,15 +66,28 @@ macro(__add_all_directory)
 	__recursive_add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR})
 endmacro()
 
-macro(__build_info_header)
+macro(__build_engine_info_header)
 	string(TIMESTAMP BUILD_TIME "%y_%m_%d_%H_%M")
-	set(BUILD_INFO_HEAD "${PROJECT_NAME}_${BUILD_TIME}")
-	set(DEBUG_RESOURCES_DIR "${BIN_OUTPUT_DIR}/Debug/resources/")
-	set(RELEASE_RESOURCES_DIR "${BIN_OUTPUT_DIR}/Release/resources/")
+	set(BUILD_ENGINE_INFO_HEAD "${PROJECT_NAME}_cxss_${BUILD_TIME}")
 	
-	__get_main_git_hash(MAIN_GIT_HASH)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/buildinfo.h.prebuild
-               ${CMAKE_BINARY_DIR}/buildinfo.h)
+	set(SUB "cxss")
+	__get_submodule_git_hash(${SUB} CXSS_GIT_HASH)
+	__get_branch_name(MAGE_VERSION_GIT_HEAD_BRANCH)
+	__get_last_commit_time(MAGE_VERSION_LAST_COMMIT_TIME)
+	
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cxss/engineinfo.h.prebuild
+               ${CMAKE_CURRENT_BINARY_DIR}/buildengineinfo.h)
+endmacro()
+
+macro(__build_crslice_info_header)
+	string(TIMESTAMP BUILD_TIME "%y_%m_%d_%H_%M")
+	set(BUILD_ENGINE_INFO_HEAD "${PROJECT_NAME}_crslice_${BUILD_TIME}")
+	
+	set(SUB "crslice")
+	__get_submodule_git_hash(${SUB} CRSLICE_GIT_HASH)
+
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/crslice.h.prebuild
+               ${CMAKE_CURRENT_BINARY_DIR}/crsliceinfo.h)
 endmacro()
 
 function(__scope_add tlist item)
@@ -354,6 +369,9 @@ macro(__copy_find_targets targets)
 		get_target_property(IMPORT_LOC_DEBUG ${target} IMPORTED_LOCATION_DEBUG)
 		get_target_property(IMPORT_LOC_RELEASE ${target} IMPORTED_LOCATION_RELEASE)
 
+		if(NOT EXISTS ${IMPORT_LOC_DEBUG})
+			set(IMPORT_LOC_DEBUG ${IMPORT_LOC_RELEASE})
+		endif()
 		if(CC_BC_WIN OR CC_BC_MAC)
 			if(IMPORT_LOC_DEBUG AND IMPORT_LOC_RELEASE 
 					AND EXISTS ${IMPORT_LOC_RELEASE} AND EXISTS ${IMPORT_LOC_DEBUG})
@@ -385,7 +403,10 @@ macro(__copy_find_targets targets)
 				elseif(CC_BC_MAC)
 					INSTALL(FILES ${IMPORT_LOC_RELEASE} DESTINATION "${MACOS_INSTALL_LIB_DIR}")
 				elseif(CC_BC_LINUX)
-					INSTALL(FILES ${IMPORT_LOC_RELEASE} DESTINATION ./lib/)
+					MESSAGE(STATUS \"=====linux install import target ${target}.\")
+					MESSAGE(STATUS \"import loc release ${IMPORT_LOC_RELEASE} \")
+					MESSAGE(STATUS \"target path ${CMAKE_INSTALL_PREFIX}/lib/ \")
+					FILE(COPY ${IMPORT_LOC_RELEASE} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/ FOLLOW_SYMLINK_CHAIN)
 				endif()
 			endif()
 		endif()

@@ -15,6 +15,23 @@ macro(__enable_cxx17)
 	endif()
 endmacro()
 
+macro(__enable_cxx14)
+	if ( CMAKE_SYSTEM_NAME MATCHES "Windows" )
+		set( my_std_pre "/std:" )
+	else()
+		set( my_std_pre "-std=" )
+	endif()
+
+	set( basic_cxx14 "c++14" )
+	set( str_cxx14 "${my_std_pre}${basic_cxx14}" )
+	
+	include( CheckCXXCompilerFlag )
+	check_cxx_compiler_flag( "${str_cxx14}" _cpp_14_flag_supported )
+	if ( _cpp_14_flag_supported )
+		set( CMAKE_CXX_STANDARD 14 )
+	endif()
+endmacro()
+
 macro(__enable_mem_leak_check)
 	if(WIN32)
 		add_definitions(-DCXX_MEMORY_LEAK_CHECK)
@@ -42,8 +59,11 @@ if(NOT WIN32)
     #	link_directories("/usr/local/lib/")
 endif()
 
+__enable_cxx14()
+
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include_directories(${CMAKE_BINARY_DIR})
 
 if(WIN32)
 	set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
@@ -56,11 +76,13 @@ if(WIN32)
 		set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 			$<$<CONFIG:Debug>:DEBUG>)
 	endif()
+	
+	#add_definitions(-DUNICODE -D_UNICODE)
 endif()
 
 macro(__enable_vld)
 	if(WIN32)
-		message(STATUS "------------${CMAKE_SOURCE_DIR}")
+		message(STATUS "__enable_vld --------> : ${CMAKE_SOURCE_DIR}")
 		include_directories(${CMAKE_SOURCE_DIR}/cmake/vld)
 		link_directories(${CMAKE_SOURCE_DIR}/cmake/vld)
 		add_custom_target(__vld ALL COMMENT "memory leak check!")
@@ -77,6 +99,10 @@ endmacro()
 
 if(CXX_VLD)
 	__enable_vld()
+endif()
+
+if(RENDER_DOC)
+	include(RenderDoc)
 endif()
 
 macro(__enable_cxdef)
@@ -148,4 +174,21 @@ macro(__enable_bigobj)
 	if(WIN32)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 	endif()
+endmacro()
+
+macro(__enable_gprof)
+	if(CC_BC_LINUX)
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+		SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
+	endif()
+endmacro()
+
+macro(__execute)
+	message(STATUS "__execute ${ARGV} :")
+	
+	execute_process(COMMAND ${ARGV}
+					OUTPUT_VARIABLE ret)
+	message(STATUS ${ret})
 endmacro()

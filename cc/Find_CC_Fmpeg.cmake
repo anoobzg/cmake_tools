@@ -19,6 +19,7 @@ if(FMPEG_INSTALL_ROOT)
 	
 	set(avdevice_INCLUDE_DIRS ${FMPEG_INSTALL_ROOT}/include/)
 	
+	set(avfilter_INCLUDE_DIRS ${FMPEG_INSTALL_ROOT}/include/)
 	set(x264_INCLUDE_DIRS ${FMPEG_INSTALL_ROOT}/include/)
 							   
 else()
@@ -26,30 +27,42 @@ else()
 endif()
 	
 macro(__fmpeg_add target dll)
-	find_library(${target}_LIBRARIES_DEBUG
-				NAMES ${target}
-				PATHS "${FMPEG_INSTALL_ROOT}/lib/")		
-	find_library(${target}_LIBRARIES_RELEASE
-				NAMES ${target}
-				PATHS "${FMPEG_INSTALL_ROOT}/lib/")
 	#message("${target}_LIBRARIES_DEBUG  ${${target}_LIBRARIES_DEBUG}")
 	#message("${target}_LIBRARIES_RELEASE  ${${target}_LIBRARIES_RELEASE}")
     if(CC_BC_WIN)
+		find_library(${target}_LIBRARIES_DEBUG
+					NAMES ${target}
+					PATHS "${FMPEG_INSTALL_ROOT}/lib/")		
+		find_library(${target}_LIBRARIES_RELEASE
+					NAMES ${target}
+					PATHS "${FMPEG_INSTALL_ROOT}/lib/")
 	    set(${target}_LOC_DEBUG "${FMPEG_INSTALL_ROOT}/bin/${dll}.dll")
 	    set(${target}_LOC_RELEASE "${FMPEG_INSTALL_ROOT}/bin/${dll}.dll")
 	elseif(CC_BC_LINUX)
+		set(${target}_LIBRARIES_DEBUG "${FMPEG_INSTALL_ROOT}/lib/${dll}")
+	    set(${target}_LIBRARIES_RELEASE "${FMPEG_INSTALL_ROOT}/lib/${dll}")
 	    set(${target}_LOC_DEBUG ${${target}_LIBRARIES_DEBUG})
 	    set(${target}_LOC_RELEASE ${${target}_LIBRARIES_RELEASE})		
 	endif()
 endmacro()
-if(CC_BC_WIN OR CC_BC_LINUX)
+
+if(CC_BC_WIN)
 	__fmpeg_add(avcodec avcodec-58)
 	__fmpeg_add(avformat avformat-58)
 	__fmpeg_add(avutil avutil-56)
 	__fmpeg_add(swscale swscale-5)
 	__fmpeg_add(swresample swresample-3)
 	__fmpeg_add(avdevice avdevice-58)
+	__fmpeg_add(avfilter avfilter-7)
 	__fmpeg_add(x264 x264-58)
+elseif(CC_BC_LINUX)
+    __fmpeg_add(avcodec libavcodec.so.58)
+	__fmpeg_add(avformat libavformat.so.58)
+	__fmpeg_add(avutil libavutil.so.56)
+	__fmpeg_add(swscale libswscale.so.5)
+	__fmpeg_add(swresample libswresample.so.3)
+	__fmpeg_add(avdevice libavdevice.so.58)
+	__fmpeg_add(avfilter libavfilter.so.7)
 elseif(CC_BC_MAC)
 	message("find cc fmpeg macOS")
 	find_library(avcodec_LIBRARIES_DEBUG
@@ -124,6 +137,7 @@ __test_import(swresample dll)
 __test_import(x264 dll)
 __test_import(avutil dll)
 __test_import(avdevice dll)
+__test_import(avfilter dll)
 
 if(FMPEG_INCLUDE_DIRS)
 	set(FMPEG_INCLUDE_FOUND 1)

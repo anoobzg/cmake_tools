@@ -98,8 +98,7 @@ macro(__windeployqt target)
 				env PATH="${_qt_bin_dir}" "${WINDEPLOYQT_EXECUTABLE}"
 					--verbose 0
 					--no-compiler-runtime
-					--no-angle
-					--no-opengl-sw
+					--angle
 					${QMLDIR}
 					--dir "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
 					\"$<TARGET_FILE:${target}>\"
@@ -117,7 +116,11 @@ macro(__windeployqt target)
         message(WARNING "Deploying with MSVC 2015+ requires CMake 3.6+")
     endif()
 
-    set(CMAKE_INSTALL_UCRT_LIBRARIES FALSE)
+    include(InstallRequiredSystemLibraries)
+    foreach(lib ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+        get_filename_component(filename ${lib} NAME)
+        INSTALL(FILES ${lib} DESTINATION .)
+    endforeach()
 endmacro()
 
 # Add commands that copy the required Qt files to the application bundle
@@ -162,6 +165,10 @@ function(__macdeployqt target)
 				-always-overwrite -qmldir="${QML_ENTRY_DIR}"
 			COMMENT "Deploying Qt...qml:${QML_ENTRY_DIR}"
 		)
+        add_custom_command(TARGET ${target} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory "${Qt5Core_DIR}/../../../plugins/renderers/" "$<TARGET_FILE_DIR:${target}>/../PlugIns/renderers/"
+            COMMENT "Copy Render plugin $<TARGET_FILE_DIR:${target}>/renderers/"
+        )
 	endif()
 endfunction()
 
@@ -171,6 +178,7 @@ function(__linuxdeployqt target)
 		set(QMLDIR -qmldir=${QML_ENTRY_DIR})
 	endif()
 	set(QDIR --dir $<$<CONFIG:Release>:${BIN_OUTPUT_DIR}/Release/>$<$<CONFIG:Debug>:${BIN_OUTPUT_DIR}/Debug/>)
+	message("QDIR =${QDIR}  TARGET = $<TARGET_FILE:${target}>")
     add_custom_command(TARGET ${target} POST_BUILD
         COMMAND "${LINUXDEPLOYQT_EXECUTABLE}"
 		\"$<TARGET_FILE:${target}>\"
