@@ -31,8 +31,11 @@ class MainEntry(ConanFile):
             self.defs = self.conan_data["defs"].split(" ")
         if "cmake_rep" in self.conan_data:
             self.cmake_rep = self.conan_data["cmake_rep"]
-                    
+                                        
     def config_options(self):
+        print("[conan DEBUG] conan data: ")
+        print(self.conan_data)    
+   
         print("[conan DEBUG] config_options.")
         print("[conan DEBUG] conanfile.py init.")
         print("[conan DEBUG] self.recipe_folder: " + self.recipe_folder)
@@ -86,9 +89,9 @@ class MainEntry(ConanFile):
         cmake.definitions["CMAKE_BUILD_TYPE"] = "Release"
         if self.settings.build_type == "Debug":
             cmake.definitions["CMAKE_BUILD_TYPE"] = "Debug"
-            
-        #if self.settings.os != "Windows":
-        #    cmake.parallel = False
+        
+        if 'parallel' in self.conan_data and self.conan_data['parallel'] == False:        
+            cmake.parallel = False
             
         for d in self.defs :
             cmake.definitions[d] = "ON"

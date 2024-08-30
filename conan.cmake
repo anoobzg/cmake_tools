@@ -242,3 +242,29 @@ macro(__import_multiconfig_common cmake_file debug_config)
 		include(${debug_config})
 	endif()
 endmacro()
+
+macro(__install_conan_deps)
+	set(deps_dir ${CMAKE_BINARY_DIR}/deps/)
+	list(PREPEND CMAKE_MODULE_PATH ${deps_dir})
+	set(conan_file ${CMAKE_SOURCE_DIR}/conanfile.txt)
+	if(EXISTS ${conan_file} AND NOT EXISTS ${deps_dir})
+		message(STATUS "__install_conan_deps -> ${deps_dir}")
+		file(MAKE_DIRECTORY ${deps_dir})
+
+		set(CMD "conan install ${CMAKE_SOURCE_DIR} --output-folder=${deps_dir} --profile x64-release")
+		set(CMD "conan")
+		set(ARGS "install" "${CMAKE_SOURCE_DIR}" "--output-folder=${deps_dir}" "--profile" "x64-release")
+
+		execute_process(
+    		COMMAND ${CMD} ${ARGS}
+    		RESULT_VARIABLE RESULT
+    		OUTPUT_VARIABLE OUTPUT
+		)
+ 
+		if(NOT RESULT EQUAL "0")
+    		message(FATAL_ERROR "__install_conan_deps run conan install failed : ${OUTPUT}")
+		else()
+    		message("__install_conan_deps run conan install successful : ${OUTPUT}")
+		endif()
+	endif()
+endmacro()

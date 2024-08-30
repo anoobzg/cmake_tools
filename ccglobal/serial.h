@@ -59,6 +59,48 @@ namespace ccglobal
 		return result;
 	}
 
+	typedef std::function<bool(std::fstream& fs, int version)> serial_func;
+	inline bool cxndSave(const std::string& fileName, int version, serial_func func)
+	{
+		std::fstream out(fileName, std::ios::out | std::ios::binary);
+		if (!out.is_open())
+		{
+			LOGE("cxndSave error. [%s]", fileName.c_str());
+			out.close();
+			return false;
+		}
+
+
+		int ver = version;
+		out.write((const char*)&ver, sizeof(int));
+		bool result = false;
+		if (func)
+			result = func(out, ver);
+
+		out.close();
+		return result;
+	}
+
+	inline bool cxndLoad(const std::string& fileName, serial_func func)
+	{
+		std::fstream in(fileName, std::ios::in | std::ios::binary);
+		if (!in.is_open())
+		{
+			LOGE("cxndSave error. [%s]", fileName.c_str());
+			in.close();
+			return false;
+		}
+
+		int ver = -1;
+		in.read((char*)&ver, sizeof(int));
+		bool result = false;
+		if (func)
+			result = func(in, ver);
+
+		in.close();
+		return result;
+	}
+
 	template<class T>
 	void cxndLoadT(std::fstream& in, T& t)
 	{

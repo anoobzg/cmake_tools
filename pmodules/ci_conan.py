@@ -84,7 +84,7 @@ class Conan():
         return subs
     
     def _collect_unique_libs(self, libDict, lib, includeSelf=False):
-        self.logger.info('_collect_unique_libs {} from {}'.format(lib, libDict))
+        #self.logger.info('_collect_unique_libs {} from {}'.format(lib, libDict))
         result = []
         if includeSelf == True:
             result.append(lib)
@@ -315,7 +315,7 @@ class Conan():
         directory = str(self.conan_path)   
         conan_file = directory + "/scripts/conanfile.py"
         cmake_file = directory + "/scripts/CMakeLists.txt"
-        success = self._create_from_internal_template(name, version, self._profile(), channel, sub_libs, conan_file, cmake_file, meta_file, commit_id)
+        success = self._create_from_internal_template(name, version, self._profile(False), channel, sub_libs, conan_file, cmake_file, meta_file, commit_id)
         self.logger.info(success)
         
     '''
@@ -329,7 +329,7 @@ class Conan():
             return
             
         sub_libs = self._collect_chain_sub_libs(recipe)
-        self._create_conan_1(recipe, self._profile(), channel, sub_libs)
+        self._create_conan_1(recipe, self._profile(False), channel, sub_libs)
         
         if upload == True:
             self._conan_upload(recipe, channel)
@@ -380,13 +380,13 @@ class Conan():
             channel = 'jwin'
             
         '''
-        prof = self._profile()
+        prof = self._profile(True)
         prefix = channel_name
             
         channel = '{}/{}'.format(prefix, prof)
         return channel
         
-    def _profile(self):
+    def _profile(self, skipDefault=True):
         '''
         profile = 'win'
         if name == 'linux' or name == 'opensource-linux':
@@ -395,16 +395,24 @@ class Conan():
             profile = 'mac'
         return profile           
         '''
+        prof = "win"
         if self.system == 'Windows':
-            return 'win'
+            prof = 'win'
         if self.system == 'Linux':
-            return 'linux'
+            prof = 'linux'
         if self.system == 'Darwin':
             if self.machine == 'arm64':
-                return 'mac-arm64'
+                prof = 'mac-arm64'
             else:
-                return 'mac'
-        return 'win'    
+                prof = 'mac'
+            
+        if skipDefault == False:
+            cmd = 'conan profile get settings.os {}'.format(prof)
+            result = executor.run_result(cmd)
+            if result == "":
+                prof = "default"
+            
+        return prof    
     
     def _write_conan_file(self, conanfile, libs, channel):
         '''
@@ -601,9 +609,13 @@ class ConanCircleCreator():
     def _conan_commit_id(self, name, version, channel):
         cmd = 'conan inspect --raw conan_data {}/{}@{}'.format(name, version, channel)
         result = executor.run_result(cmd)
+        
+        #self.logger.info('{} ->\n {}'.format(cmd, result))
         if result == '' or not result.startswith('{'):    
             result = '{}'
         conan_datas = eval(result)
+        #self.logger.info('eval result ->\n {}'.format(conan_datas))
+        
         commit_id = ''
         if 'commit_id' in conan_datas:
                 commit_id = conan_datas['commit_id']
