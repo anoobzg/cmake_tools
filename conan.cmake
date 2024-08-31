@@ -246,17 +246,20 @@ endmacro()
 macro(__install_conan_deps)
 	set(deps_dir ${CMAKE_BINARY_DIR}/deps/)
 	list(PREPEND CMAKE_MODULE_PATH ${deps_dir})
-	set(conan_file ${CMAKE_SOURCE_DIR}/conanfile.txt)
+	list(PREPEND CMAKE_PREFIX_PATH ${deps_dir})
+	set(conan_file ${CMAKE_SOURCE_DIR}/conanfile.py)
 	if(EXISTS ${conan_file} AND NOT EXISTS ${deps_dir})
 		message(STATUS "__install_conan_deps -> ${deps_dir}")
 		file(MAKE_DIRECTORY ${deps_dir})
 
-		set(CMD "conan install ${CMAKE_SOURCE_DIR} --output-folder=${deps_dir} --profile x64-release")
-		set(CMD "conan")
-		set(ARGS "install" "${CMAKE_SOURCE_DIR}" "--output-folder=${deps_dir}" "--profile" "x64-release")
+		set(conan_profile "x64-debug")
+		if(CMAKE_CONFIGURE_TYPE)
+			set(conan_profile ${CMAKE_CONFIGURE_TYPE})
+		endif()
+		set(ARGS "install" "${CMAKE_SOURCE_DIR}" "--output-folder=${deps_dir}" "--profile" ${conan_profile})
 
 		execute_process(
-    		COMMAND ${CMD} ${ARGS}
+    		COMMAND "conan" ${ARGS}
     		RESULT_VARIABLE RESULT
     		OUTPUT_VARIABLE OUTPUT
 		)
