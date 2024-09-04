@@ -2,6 +2,7 @@ include(Global)
 include(log)
 
 include(CCBuildSystem)
+include(unitTesting)
 
 include(lib)
 include(git)
@@ -36,5 +37,4 @@ if(CC_BC_EMCC)
 	include(emcc)
 endif()
 
-include(unitTesting)
 

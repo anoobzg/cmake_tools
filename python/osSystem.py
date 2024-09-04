@@ -4,7 +4,7 @@ import tempfile
 import shutil
 import createUtil
 import ParamPackUtil
-
+import json
 Global_Debug = False
 Global_conan = True
 
@@ -105,7 +105,7 @@ def conan_cmake():
     work_type = 'win'
     build_type = 'Alpha'
     engine_type = 'orca'
-    engine_version = '1.6.0'
+    engine_version = '0.0.0'
     use_local_package = 0
     app_name = ''
     try:
@@ -129,7 +129,8 @@ def conan_cmake():
             app_name = arg
         if opt in ('-p'):
             use_local_package = arg
-            
+        if opt in ('-v'):    
+            engine_version = arg
     project_path = ''
     if work_type == 'win':
         project_path = win_conan_cmake(working_path, 'desktop/win')
@@ -152,6 +153,12 @@ def conan_cmake():
     else:
         pass
     if app_name == 'Creality_Print':
+        if(engine_version == '0.0.0'):
+            with open('crslice2/crslice/parameter/base/base.json', 'r') as f:
+                data = json.load(f)
+                if data["version"]!=None:
+                    engine_version = data["version"]
+        print("engine_version:"+engine_version)
         if(use_local_package == "0"):
             ParamPackUtil.downloadParamPack(working_path, build_type, engine_type, engine_version)
         else:

@@ -658,4 +658,17 @@ meta_file, meta.rep_commit_id)
         if upload == True:
             self.conan._conan_upload(recipe, channel)
         
-        
+if __name__ == "__main__":
+    conan_channel = 'desktop'
+    import log
+    logger = log.create_log('ci_conan')
+    
+    import ci_conan
+    logger.info('cmake install conan channel: {}'.format(conan_channel))
+
+    source_path = sys.argv[1]
+    project_path = sys.argv[2]
+    cmake_path = source_path + "/cmake/"
+
+    conan = ci_conan.Conan(cmake_path, logger, False)
+    conan.install_from_conandata_file(project_path, source_path, False, conan_channel)

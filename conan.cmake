@@ -1,5 +1,36 @@
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/conan/")
 
+# use presets
+if(EXISTS ${CMAKE_SOURCE_DIR}/CMakeUserPresets.json
+	OR EXISTS ${CMAKE_SOURCE_DIR}/CMakePresets.json)
+	message(STATUS "presets install_conan_deps -> ${CMAKE_BINARY_DIR}")
+
+	if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo_multi.cmake)
+		message(STATUS "conanbuildinfo_multi.cmake exists, skip install_conan_deps")
+	else()
+		if(NOT EXISTS ${CMAKE_SOURCE_DIR}/conandata.yml)
+			message(STATUS "conandata not exists, skip install_conan_deps")
+		else()
+			set(cmd_exe ${Python3_EXECUTABLE})
+			set(cmd_script ${CMAKE_CURRENT_SOURCE_DIR}/cmake/pmodules/ci_conan.py)
+			set(ARGS "${cmd_script}" ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+
+			message(STATUS "presets execute: ${Python3_EXECUTABLE} ${cmd_script} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}")
+			execute_process(
+				COMMAND ${cmd_exe} ${ARGS}
+				RESULT_VARIABLE RESULT
+				OUTPUT_VARIABLE OUTPUT
+			)
+
+			if(NOT RESULT EQUAL "0")
+				message(FATAL_ERROR "presets install_conan_deps failed : ${OUTPUT}")
+			else()
+				message("presets install_conan_deps successful : ${OUTPUT}")
+			endif()
+		endif()
+	endif()
+endif()
+
 if(EXISTS ${CMAKE_BINARY_DIR}/conan_paths.cmake)
 	include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 	message(STATUS "Conan Use conan_paths.cmake")
