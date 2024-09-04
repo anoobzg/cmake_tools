@@ -9,3 +9,7 @@
 /conan-temp/
 __pycache__/
 *.pyc
+CMakeUserPresets.json
+*/build/
+msvc-193-x86_64-14-debug/
+msvc-193-x86_64-14-release/
