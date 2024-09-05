@@ -4,9 +4,6 @@ from conan.tools.scm import Git
 
 class Trimesh2Recipe(ConanFile):
     name = "trimesh2"
-    version = "2.0.0"
-    user = "zenggui"
-    channel = "user"
     
     # Optional metadata
     license = "<Put the package license here>"
