@@ -13,3 +13,5 @@ CMakeUserPresets.json
 */build/
 msvc-193-x86_64-14-debug/
 msvc-193-x86_64-14-release/
+msvc-194-x86_64-14-debug/
+msvc-194-x86_64-14-release/
