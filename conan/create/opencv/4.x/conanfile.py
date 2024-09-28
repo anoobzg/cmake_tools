@@ -190,10 +190,10 @@ class OpenCVConan(ConanFile):
         "with_avif": False,
         "with_jpeg": "libjpeg",
         "with_png": True,
-        "with_tiff": True,
+        "with_tiff": False,
         "with_jpeg2000": "openjpeg",
-        "with_openexr": True,
-        "with_webp": True,
+        "with_openexr": False,
+        "with_webp": False,
         "with_gdal": False,
         "with_gdcm": False,
         "with_imgcodec_hdr": True,
@@ -203,9 +203,9 @@ class OpenCVConan(ConanFile):
         "with_msmf": True,
         "with_msmf_dxva": True,
         # objdetect module options
-        "with_quirc": True,
+        "with_quirc": False,
         # videoio module options
-        "with_ffmpeg": True,
+        "with_ffmpeg": False,
         "with_v4l": False,
         # text module options
         "with_tesseract": True,
@@ -254,8 +254,9 @@ class OpenCVConan(ConanFile):
 
     @property
     def _has_with_ffmpeg_option(self):
-        return self.settings.os != "iOS" and self.settings.os != "WindowsStore"
-
+        #return self.settings.os != "iOS" and self.settings.os != "WindowsStore"
+        return False
+    
     @property
     def _has_superres_option(self):
         return self.settings.os != "iOS"
