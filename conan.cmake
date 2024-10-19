@@ -274,7 +274,7 @@ macro(__import_multiconfig_common cmake_file debug_config)
 	endif()
 endmacro()
 
-macro(__install_conan_deps)
+macro(__install_conan_deps runtime)
 	set(deps_dir ${CMAKE_BINARY_DIR}/deps/)
 	list(PREPEND CMAKE_MODULE_PATH ${deps_dir})
 	list(PREPEND CMAKE_PREFIX_PATH ${deps_dir})
@@ -283,11 +283,19 @@ macro(__install_conan_deps)
 		message(STATUS "__install_conan_deps -> ${deps_dir}")
 		file(MAKE_DIRECTORY ${deps_dir})
 
-		set(conan_profile "x64-debug")
-		if(CMAKE_CONFIGURE_TYPE)
-			set(conan_profile ${CMAKE_CONFIGURE_TYPE})
+		set(ARGS "install" "${CMAKE_SOURCE_DIR}" "--output-folder=${deps_dir}")
+
+		if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+			list(APPEND ARGS "-s" "build_type=Debug")
+		else()
+			list(APPEND ARGS "-s" "build_type=Release")
 		endif()
-		set(ARGS "install" "${CMAKE_SOURCE_DIR}" "--output-folder=${deps_dir}" "--profile" ${conan_profile})
+
+		if(${runtime} STREQUAL "dynamic")
+			list(APPEND ARGS "-s" "compiler.runtime=dynamic")
+		else()
+			list(APPEND ARGS "-s" "compiler.runtime=static")
+		endif()
 
 		execute_process(
     		COMMAND "conan" ${ARGS}
