@@ -22,17 +22,19 @@ class OneTBBConan(ConanFile):
         " programs that take full advantage of multicore performance, that are portable, composable"
         " and have future-proof scalability.")
     topics = ("tbb", "threading", "parallelism", "tbbmalloc")
-    package_type = "shared-library"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "tbbmalloc": [True, False],
         "tbbproxy": [True, False],
         "tbbbind": [True, False],
         "interprocedural_optimization": [True, False],
     }
     default_options = {
+        "shared": False,
         "tbbmalloc": True,
-        "tbbproxy": True,
+        "tbbproxy": False,
         "tbbbind": False,
         "interprocedural_optimization": True,
     }
