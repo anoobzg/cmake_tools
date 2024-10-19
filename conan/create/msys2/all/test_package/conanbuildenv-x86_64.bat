@@ -18,6 +18,6 @@ for %%v in (MSYS_ROOT MSYS_BIN PATH) do (
 endlocal
 
 
-set "MSYS_ROOT=C:\Users\anoob\.conan2\p\b\msys292b656bb48784\p\bin\msys64"
-set "MSYS_BIN=C:\Users\anoob\.conan2\p\b\msys292b656bb48784\p\bin\msys64\usr\bin"
-set "PATH=C:\Users\anoob\.conan2\p\b\msys292b656bb48784\p\bin;C:\Users\anoob\.conan2\p\b\msys292b656bb48784\p\bin\msys64\usr\bin;%PATH%"
+set "MSYS_ROOT=C:\Users\cx1959\.conan2\p\b\msys2b372f4190ac2f\p\bin\msys64"
+set "MSYS_BIN=C:\Users\cx1959\.conan2\p\b\msys2b372f4190ac2f\p\bin\msys64\usr\bin"
+set "PATH=C:\Users\cx1959\.conan2\p\b\msys2b372f4190ac2f\p\bin;C:\Users\cx1959\.conan2\p\b\msys2b372f4190ac2f\p\bin\msys64\usr\bin;%PATH%"
