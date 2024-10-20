@@ -8,8 +8,3 @@ if __name__ == "__main__":
     print('create conan package : {}'.format(p))
     cmd = "start /B /wait conan create {} -s build_type=Debug --version {}".format(str(p), version)
     os.system(cmd)
-    cmd = "start /B /wait conan create {} -s build_type=Release --version {}".format(str(p), version)
-    os.system(cmd)
-
-    cmd = "start /B /wait conan upload -r artifactory {}/{} ".format(name, version)
-    os.system(cmd)

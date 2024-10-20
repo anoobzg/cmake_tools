@@ -1,7 +1,6 @@
 import os
 import sys
 import pathlib
-import subprocess
 
 def parse_recipe():
     name = 'default'
@@ -31,11 +30,3 @@ def search_recipe_path(name, version) -> pathlib.Path:
         print("FileNotFoundError : {}".format(config_file))
 
     return recipe_root
-
-if __name__ == "__main__":
-    name, version = parse_recipe()
-    p = search_recipe_path(name, version)
-    
-    print('create conan package : {}'.format(p))
-    cmd = "start /B /wait conan create {} -s build_type=Debug --version {}".format(str(p), version)
-    os.system(cmd)
