@@ -1,0 +1,33 @@
+macro(__enable_cxx17)
+	if ( CMAKE_SYSTEM_NAME MATCHES "Windows" )
+		set( my_std_pre "/std:" )
+	else()
+		set( my_std_pre "-std=" )
+	endif()
+
+	set( basic_cxx17 "c++17" )
+	set( str_cxx17 "${my_std_pre}${basic_cxx17}" )
+	
+	include( CheckCXXCompilerFlag )
+	check_cxx_compiler_flag( "${str_cxx17}" _cpp_17_flag_supported )
+	if ( _cpp_17_flag_supported )
+		set( CMAKE_CXX_STANDARD 17 )
+	endif()
+endmacro()
+
+macro(__enable_cxx14)
+	if ( CMAKE_SYSTEM_NAME MATCHES "Windows" )
+		set( my_std_pre "/std:" )
+	else()
+		set( my_std_pre "-std=" )
+	endif()
+
+	set( basic_cxx14 "c++14" )
+	set( str_cxx14 "${my_std_pre}${basic_cxx14}" )
+	
+	include( CheckCXXCompilerFlag )
+	check_cxx_compiler_flag( "${str_cxx14}" _cpp_14_flag_supported )
+	if ( _cpp_14_flag_supported )
+		set( CMAKE_CXX_STANDARD 14 )
+	endif()
+endmacro()
