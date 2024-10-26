@@ -56,7 +56,7 @@ function(__modify_target target)
         set_target_properties(${target} PROPERTIES FOLDER ${target_FOLDER})
     endif()
 
-    configure_target(${target})
+    __redirect_target_output(${target})
 endfunction()
 
 # wrap cmake function 
@@ -71,3 +71,97 @@ function(__redirect_target_output target)
                         RUNTIME_OUTPUT_DIRECTORY_RELEASE "${BIN_OUTPUT_DIR}/Release/"
                         )
 endfunction()
+
+#port from ConfigureTargets.cmake
+macro(__add_include_interface package)
+	cmake_parse_arguments(package "" "" "INTERFACE;INTERFACE_DEF" ${ARGN})
+
+	set(INCS ${CMAKE_CURRENT_SOURCE_DIR})
+	if(package_INTERFACE)
+		set(INCS ${package_INTERFACE})
+	endif()
+	
+	if(NOT TARGET ${package})
+		add_library(${package} INTERFACE)
+		set_property(TARGET ${package} PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${INCS})
+		
+		if(package_INTERFACE_DEF)
+			set_property(TARGET ${package} PROPERTY INTERFACE_COMPILE_DEFINITIONS ${package_INTERFACE_DEF})
+		endif()
+	endif()
+endmacro()
+
+#only for exe obj and ..
+function(__add_real_target target type)
+	cmake_parse_arguments(target "" ""
+		"SOURCE;INC;LIB;ILIB;DEF;DEP;INTERFACE" ${ARGN})
+	if(target_SOURCE)
+		if(${type} STREQUAL "exe")
+			add_executable(${target} ${target_SOURCE})
+		elseif(${type} STREQUAL "winexe")
+			add_executable(${target} WIN32 ${target_SOURCE})
+		elseif(${type} STREQUAL "bundle")
+			add_executable(${target} MACOSX_BUNDLE ${target_SOURCE})
+		elseif(${type} STREQUAL "dll")
+            __fatal_message("__add_real_target not support dll anymore, use __add_common_library instead")
+		elseif(${type} STREQUAL "lib")
+            __fatal_message("__add_real_target not support lib anymore, use __add_common_library instead")
+		elseif(${type} STREQUAL "obj")
+			add_library(${target} OBJECT ${target_SOURCE})
+		else()
+            add_executable(${target} ${target_SOURCE})
+		endif()
+    else()
+        __fatal_message("__add_real_target must provide SOURCE")
+    endif()
+
+	__modify_target(${target} ${ARGN})
+endfunction()
+
+#common entry for library(lib, dll)
+#use ${UpperTarget}_STATIC 
+macro(__add_common_library target)
+	if(NOT INTERFACES)
+		set(INTERFACES ${CMAKE_CURRENT_SOURCE_DIR})
+		if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/include")
+			list(APPEND INTERFACES ${CMAKE_CURRENT_SOURCE_DIR}/include)
+		endif()
+	endif()
+	
+	if(NOT SRCS)
+        __fatal_message("SRCS is empty")
+	endif()
+	
+	if(NOT INCS)
+		set(INCS ${CMAKE_CURRENT_SOURCE_DIR})
+	endif()
+	
+	if(NOT DEFS)
+		set(DEFS)
+	endif()
+	if(NOT INTERFACE_DEFS)
+		set(INTERFACE_DEFS)
+	endif()
+	if(NOT ILIBS)
+		set(ILIBS)
+	endif()
+	
+	string(TOUPPER ${target} UpperName)
+			
+	if(${UpperName}_STATIC)
+		list(APPEND INTERFACE_DEFS USE_${UpperName}_STATIC)
+		add_library(${target} STATIC ${SRCS})
+	else()
+		list(APPEND DEFS ${UpperName}_DLL)
+		list(APPEND INTERFACE_DEFS USE_${UpperName}_DLL)
+		add_library(${target} SHARED ${SRCS})
+	endif()
+
+    __modify_target(${target} 	LIB ${LIBS}
+                                ILIB ${ILIBS}
+                                INC ${INCS}
+                                DEF ${DEFS}
+                                INTERFACE ${INTERFACES}
+                                INTERFACE_DEF ${INTERFACE_DEFS}
+                                )
+endmacro()
