@@ -57,6 +57,13 @@ function(__modify_target target)
     endif()
 
     __redirect_target_output(${target})
+
+	get_property(MR_DYNAMIC GLOBAL PROPERTY MSVC_RUNTIME_DYNAMIC)
+	if(MR_DYNAMIC)
+		set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+	else()
+		set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	endif()
 endfunction()
 
 # wrap cmake function 

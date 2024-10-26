@@ -18,11 +18,13 @@ macro(__install_conan_requirements)
 			list(APPEND ARGS "-s" "build_type=Release")
 		endif()
 
+		__set_global_property(MSVC_RUNTIME_DYNAMIC 1)
         if(MSVC)
             if(conan_MSVC_RUNTIME AND ${conan_MSVC_RUNTIME} STREQUAL "dynamic")
                 list(APPEND ARGS "-s" "compiler.runtime=dynamic")
             else()
                 list(APPEND ARGS "-s" "compiler.runtime=static")
+				__set_global_property(MSVC_RUNTIME_DYNAMIC 0)
             endif()
         endif()
 
