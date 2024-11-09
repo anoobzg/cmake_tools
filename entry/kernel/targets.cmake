@@ -79,6 +79,17 @@ function(__redirect_target_output target)
                         )
 endfunction()
 
+function(__redirect_pyd_output target) 
+    set_target_properties(${target} PROPERTIES
+                        LIBRARY_OUTPUT_DIRECTORY_DEBUG "${BIN_OUTPUT_DIR}/Debug/"
+                        ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${BIN_OUTPUT_DIR}/Debug/"
+                        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${BIN_OUTPUT_DIR}/Debug/"
+                        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${BIN_OUTPUT_DIR}/Release/"
+                        ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${BIN_OUTPUT_DIR}/Release/"
+                        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${BIN_OUTPUT_DIR}/Release/"
+                        )
+endfunction()
+
 #port from ConfigureTargets.cmake
 macro(__add_include_interface package)
 	cmake_parse_arguments(package "" "" "INTERFACE;INTERFACE_DEF" ${ARGN})
