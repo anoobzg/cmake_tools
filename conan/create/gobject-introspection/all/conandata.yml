@@ -1,0 +1,4 @@
+sources:
+  "1.72.0":
+    url: "https://download.gnome.org/sources/gobject-introspection/1.72/gobject-introspection-1.72.0.tar.xz"
+    sha256: "02fe8e590861d88f83060dd39cda5ccaa60b2da1d21d0f95499301b186beaabc"
