@@ -20,3 +20,4 @@ msvc-194-x86_64-17-release/
 build-debug/
 build-release/
 .vscode/
+.history/
