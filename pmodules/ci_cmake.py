@@ -19,6 +19,8 @@ class CMake():
         self._calculate_project_path()     
     
     def _suffix(self):
+        if os.getenv("EMSDK") != None:
+            return 'emcc-build/build/'
         if self.system == 'Windows':
             return 'win32-build/build/'
         if self.system == 'Linux':
@@ -38,7 +40,7 @@ class CMake():
         # example: VS_VERSION=Visual Studio 17 2022 in system PATH
         vs_version = os.environ.get('VS_VERSION', 'Visual Studio 16 2019')
         cmake_str = ' -G "{}" -T host=x64 -A x64 {}'.format(vs_version, cmake_args)
-
+        
         if self.system == 'Linux':
             cmake_str = ' {}'.format(cmake_args)
         if self.system == 'Darwin':
@@ -53,8 +55,11 @@ class CMake():
         
     def build(self, cmake_args):
         cmake_str = "cmake -S {} -B {} -DCMAKE_USE_CONAN=ON ".format(self.source_path, self.project_path)
-        system_str = self._system_cmake_str(cmake_args)
-        cmd = cmake_str + system_str
+        if os.getenv("EMSDK") != None:
+            cmd = "emcmake cmake -S {} -B {} -DCMAKE_USE_CONAN=ON {}".format(self.source_path, self.project_path, cmake_args)  
+        else:
+            system_str = self._system_cmake_str(cmake_args)
+            cmd = cmake_str + system_str
         
         executor.run(cmd, True, self.logger)
         

@@ -107,9 +107,10 @@ def conan_cmake():
     engine_type = 'orca'
     engine_version = '0.0.0'
     use_local_package = 0
+    local_package_url = ''
     app_name = ''
     try:
-        opts, args = getopt.getopt(argv, '-d-c-t:-b:-n:-p:')
+        opts, args = getopt.getopt(argv, '-d-c-t:-b:-n:-p:-u:')
         print("getopt.getopt -> :" + str(opts))
     except getopt.GetoptError:
         print("create.py -t <type>")
@@ -131,6 +132,8 @@ def conan_cmake():
             use_local_package = arg
         if opt in ('-v'):    
             engine_version = arg
+        if opt in ('-u'):
+            local_package_url = arg
     project_path = ''
     if work_type == 'win':
         project_path = win_conan_cmake(working_path, 'desktop/win')
@@ -162,5 +165,8 @@ def conan_cmake():
         if(use_local_package == "0"):
             ParamPackUtil.downloadParamPack(working_path, build_type, engine_type, engine_version)
         else:
-            ParamPackUtil.processLocalParamPack(working_path, build_type, engine_type, engine_version)
+            if local_package_url != '':
+                urls = [local_package_url,local_package_url]
+                print("local_package_url:"+local_package_url)
+                ParamPackUtil.processLocalParamPackFromUrl(working_path, urls)
     return project_path

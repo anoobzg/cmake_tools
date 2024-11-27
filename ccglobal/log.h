@@ -28,7 +28,8 @@
 	#define LOGM(...) CXLogMain(__VA_ARGS__)
 	#define LOGMID(logSortId,...) CXLogMainID(logSortId,##__VA_ARGS__)
 	
-    #define LOGINIT(x) cxlog::CXLog::Instance().InitCXLog(x)
+    #define LOGINITX(x,y) cxlog::CXLog::Instance().InitCXLog(x,y)
+	#define LOGINIT(x) cxlog::CXLog::Instance().InitCXLog(x)
 	#define LOGDIR(x) cxlog::CXLog::Instance().setDirectory(x)
 	#define LOGLEVEL(x) cxlog::CXLog::Instance().SetLevel(x)
 	#define LOGEND()  cxlog::CXLog::Instance().EndLog()

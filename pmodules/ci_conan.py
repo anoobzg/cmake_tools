@@ -411,7 +411,8 @@ class Conan():
             result = executor.run_result(cmd)
             if result == "":
                 prof = "default"
-            
+        if os.getenv("EMSDK") != None:
+            prof = "emscripten"    
         return prof    
     
     def _write_conan_file(self, conanfile, libs, channel):
@@ -482,11 +483,11 @@ class Conan():
         
         project_path = str(Path(dest_path))
         if os.path.exists(str(conan_file)):
-            cmd = 'conan install  -g cmake_multi -s build_type=Debug --build=missing -if {0} {1} {2}'\
-                        .format(project_path, project_path, update_cmd)
+            cmd = 'conan install  -g cmake_multi -s build_type=Debug --build=missing -pr {0} -if {1} {2} {3}'\
+                        .format(self._profile(True),project_path, project_path, update_cmd)
             executor.run(cmd, True, self.logger)
-            cmd = 'conan install -g cmake_multi -s build_type=Release --build=missing -if {0} {1} {2}'\
-                        .format(project_path, project_path, update_cmd)
+            cmd = 'conan install -g cmake_multi -s build_type=Release --build=missing -pr {0} -if {1} {2} {3}'\
+                        .format(self._profile(True),project_path, project_path, update_cmd)
             executor.run(cmd, True, self.logger)
         else:
             self.logger.error('conan file create error {}'.format(str(conan_file)))
@@ -645,8 +646,8 @@ class ConanCircleCreator():
         conan_commit_id = self._conan_commit_id(meta.name, meta.version, channel)
         self.logger.info('{} {} ^^ {}'.format(recipe, conan_commit_id, meta.rep_commit_id))
         recipe_exist = self.conan._check_package('{}@{}'.format(recipe, channel))
-        if recipe_exist == True and conan_commit_id == meta.rep_commit_id:
-            self.logger.info('{} is updated'.format(recipe))
+        if recipe_exist == True and conan_commit_id == meta.rep_commit_id or meta.name_version == 'tbb-0.0.2':
+            self.logger.info('{} is updated'.format(meta.name_version))
             return
          
         for sub in meta.build_deps:

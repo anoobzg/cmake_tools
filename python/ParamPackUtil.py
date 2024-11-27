@@ -31,6 +31,31 @@ def getCommonHeaders() -> Dict[str, str]:
         "__CXY_TIMEZONE_": str(time.time())
     }
     return headers
+def processLocalParamPackFromUrl(working_path, zip_urls) -> None:
+    
+    server_path_prefixes = ["server_0", "server_1"]
+    index = 0
+    for server_path_prefix in server_path_prefixes:
+        if sys.platform.startswith('win'):
+            default_path = os.path.join(working_path, "build","resources", "sliceconfig",server_path_prefix)
+        if sys.platform.startswith('linux'):
+            default_path = os.path.join(working_path, "linux-build", "build","resources", "sliceconfig",server_path_prefix)
+        if sys.platform.startswith('darwin'):
+            default_path = os.path.join(working_path, "mac-build", "build","resources", "sliceconfig",server_path_prefix)  
+        if os.path.exists(default_path):
+            shutil.rmtree(default_path)
+        r = requests.get(zip_urls[index], allow_redirects=True)
+        tmpdirname = tempfile.mkdtemp()
+        tmpdirname = os.path.join(tmpdirname, server_path_prefix + '.zip')
+        print(tmpdirname)
+        open(tmpdirname, 'wb+').write(r.content)
+        with zipfile.ZipFile(tmpdirname, 'r') as zObject: 
+            zObject.extractall(path=os.path.join(default_path))
+            print("extract to :"+default_path)
+        index+=1
+        #shutil.copytree(os.path.join(working_path, "resources", "sliceconfig", server_path_prefix), default_path)    
+        #print("use local parampack:"+os.path.join(working_path, "resources", "sliceconfig", server_path_prefix))    
+
 def processLocalParamPack(working_path, build_type, engine_type, engine_version) -> None:
     server_path_prefixes = ["server_0", "server_1"]
     for server_path_prefix in server_path_prefixes:

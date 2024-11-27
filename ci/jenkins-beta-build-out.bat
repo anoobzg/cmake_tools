@@ -38,8 +38,9 @@ set VSENV="D:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxi
 if exist %VSENV% (call %VSENV% ) else (exit /B)
 
 :build
-echo "build"
+echo "build:" %PACKAGE_CMD%
 rem rd /s /q build
+echo %USE_LOCAL_PARAM_PACKAGE%
 if not exist build md build
 if exist build\CMakeCache.txt del build\CMakeCache.txt
 python cmake\ci\conan-cmake.py -t jwin -b %BUILD_TYPE% -n %APP_NAME% -p %USE_LOCAL_PARAM_PACKAGE%
@@ -52,7 +53,7 @@ set /p MAXCMMID=<maxcmmid
 set /p TAGCMMID=<tagcmmid
 set /a TAGNUMB=%MAXCMMID%-%TAGCMMID%
 set TAG_NAME=%TAG_NAME%.%TAGNUMB%
-call %~dp0\build-vs2019.bat %TAG_NAME% %PACKAGE_CMD% %BUILD_TYPE% %SIGIN% %APP_NAME% %CUSTOM_TYPE% "ON" || exit /b 2
+call %~dp0\build-vs2019.bat %TAG_NAME% %PACKAGE_CMD% %BUILD_TYPE% %SIGIN% %APP_NAME% %CUSTOM_TYPE% "ON" %USE_LOCAL_PARAM_PACKAGE% || exit /b 2
 set EXE_NAME=%APP_NAME%-%TAG_NAME%-win64-%BUILD_TYPE%.exe
 echo PACKAGE_CMD = %PACKAGE_CMD%
 if [%PACKAGE_CMD%] == [package_zip] (
