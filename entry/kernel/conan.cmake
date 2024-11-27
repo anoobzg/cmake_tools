@@ -55,3 +55,7 @@ macro(__install_conan_requirements)
 		message(STATUS "__install_conan_deps : please use cmaketoolchain to generate conan_toolchain.cmake")
 	endif()
 endmacro()
+
+macro(__cc_find)
+	__normal_message("__cc_find is deprecated, please use find_package instead.")
+endmacro(__cc_find)
