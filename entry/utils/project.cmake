@@ -80,4 +80,4 @@ function(__add_external_cmake_project projectname)
        INSTALL_COMMAND ${CMAKE_COMMAND} --build . --target install --config ${CMAKE_BUILD_TYPE}
     )
 
-endfunction(add_cmake_project)
+endfunction(__add_external_cmake_project)
