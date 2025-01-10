@@ -1,9 +1,9 @@
 include(ExternalProject)
 include(ProcessorCount)
 
-# set(${PROJECT_NAME}_DEP_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/destdir/usr/local" CACHE PATH "Destination directory")
-# set(${PROJECT_NAME}_DEP_DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}/downloads CACHE PATH "Path for downloaded source packages.")
-# option(${PROJECT_NAME}_DEP_BUILD_VERBOSE "Use verbose output for each dependency build" OFF)
+if(NOT EXTERNAL_DEP_INSTALL_PREFIX)
+    set(EXTERNAL_DEP_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external_install/)
+endif()
 
 get_property(_is_multi GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
@@ -47,8 +47,12 @@ function(__add_external_cmake_project projectname)
         set(_configs_line "")
     endif ()
 
+    if(NOT ${projectname}_DEP_BUILD_VERBOSE)
+        set(${projectname}_DEP_BUILD_VERBOSE ${EXTERNAL_DEP_BUILD_VERBOSE})
+    endif()
+
     set(_verbose_switch "")
-    if (${PROJECT_NAME}_DEP_BUILD_VERBOSE)
+    if (${projectname}_DEP_BUILD_VERBOSE)
         if (CMAKE_GENERATOR MATCHES "Ninja")
             set(_verbose_switch "--verbose")
         elseif (CMAKE_GENERATOR MATCHES "Visual Studio")
@@ -56,15 +60,16 @@ function(__add_external_cmake_project projectname)
         endif ()
     endif ()
     
+    if(NOT ${projectname}_DEP_INSTALL_PREFIX)
+        set(${projectname}_DEP_INSTALL_PREFIX ${EXTERNAL_DEP_INSTALL_PREFIX})
+    endif()
+
     ExternalProject_Add(
         dep_${projectname}
-        INSTALL_DIR         ${${PROJECT_NAME}_DEP_INSTALL_PREFIX}
-        DOWNLOAD_DIR        ${${PROJECT_NAME}_DEP_DOWNLOAD_DIR}/${projectname}
-        BINARY_DIR          ${CMAKE_CURRENT_BINARY_DIR}/builds/${projectname}
+        INSTALL_DIR         ${${projectname}_DEP_INSTALL_PREFIX}
         CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX:STRING=${${PROJECT_NAME}_DEP_INSTALL_PREFIX}
-            -DCMAKE_MODULE_PATH:STRING=${CMAKE_MODULE_PATH}
-            -DCMAKE_PREFIX_PATH:STRING=${${PROJECT_NAME}_DEP_INSTALL_PREFIX}
+            -DCMAKE_INSTALL_PREFIX:STRING=${${projectname}_DEP_INSTALL_PREFIX}
+            -DCMAKE_PREFIX_PATH:STRING=${${projectname}_DEP_INSTALL_PREFIX}
             -DCMAKE_DEBUG_POSTFIX:STRING=${CMAKE_DEBUG_POSTFIX}
             -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
@@ -75,9 +80,8 @@ function(__add_external_cmake_project projectname)
             "${_configs_line}"
             ${DEP_CMAKE_OPTS}
             ${P_ARGS_CMAKE_ARGS}
-       ${P_ARGS_UNPARSED_ARGUMENTS}
+        ${P_ARGS_UNPARSED_ARGUMENTS}
        BUILD_COMMAND ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE} -- ${_build_j} ${_verbose_switch}
        INSTALL_COMMAND ${CMAKE_COMMAND} --build . --target install --config ${CMAKE_BUILD_TYPE}
     )
-
 endfunction(__add_external_cmake_project)

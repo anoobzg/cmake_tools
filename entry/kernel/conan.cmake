@@ -3,8 +3,6 @@ macro(__install_conan_requirements)
         "" ${ARGN})
 
 	set(deps_dir ${CMAKE_BINARY_DIR}/deps/)
-	list(PREPEND CMAKE_MODULE_PATH ${deps_dir})
-	list(PREPEND CMAKE_PREFIX_PATH ${deps_dir})
 	set(conan_file ${CMAKE_SOURCE_DIR}/conanfile.py)
 
 	if(MSVC)

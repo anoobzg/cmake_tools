@@ -12,7 +12,6 @@
           "VCPKG_FEATURE_FLAGS": "manifests,versions,binarycaching,registries"
         },
         "cacheVariables": {
-          "CMAKE_CONFIGURE_TYPE": "${presetName}"
         },
         "condition": {
           "type": "equals",
