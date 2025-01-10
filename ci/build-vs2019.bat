@@ -42,7 +42,7 @@ if [%7] == [] (
 if [%8] == [] (
 	set USE_LOCAL_PARAM_PACKAGE=0
 ) else (
-  set USE_LOCAL_PARAM_PACKAGE=1
+  set USE_LOCAL_PARAM_PACKAGE=%8
 )
 set APP_VER=%1
 set APP_VER=%APP_VER:~1%
