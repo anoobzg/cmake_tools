@@ -97,5 +97,35 @@ class libbgcodeConan(ConanFile):
         self.output.warning("***** package.")
 
     def package_info(self):
-        self.cpp_info.libs = ["libbgcode"]
+        self.cpp_info.set_property("cmake_file_name", "LibBGCode")
+        self.cpp_info.set_property("cmake_target_name", "LibBGCode::LibBGCode")
+
+        if self.settings.build_type == "Debug":
+            lib_suffix = "d"
+        else:
+            lib_suffix = ""
+
+        inc_find = [os.path.join("include", "LibBGCode"), "include"]
+        rlibs = ["heatshrink::heatshrink", "zlib::zlib", "boost::boost"]
+
+        self.cpp_info.components["bgcode_core"].libs = ["bgcode_core{}".format(lib_suffix)]
+        self.cpp_info.components["bgcode_core"].includedirs = inc_find
+        self.cpp_info.components["bgcode_core"].names["cmake_find_package"] = "bgcode_core"
+        self.cpp_info.components["bgcode_core"].names["cmake_find_package_multi"] = "bgcode_core"
+        self.cpp_info.components["bgcode_core"].set_property("cmake_target_name", "LibBGCode::bgcode_core")
+        self.cpp_info.components["bgcode_core"].requires.extend(rlibs)
+
+        self.cpp_info.components["bgcode_binarize"].libs = ["bgcode_binarize{}".format(lib_suffix)]
+        self.cpp_info.components["bgcode_binarize"].includedirs = inc_find
+        self.cpp_info.components["bgcode_binarize"].names["cmake_find_package"] = "bgcode_binarize"
+        self.cpp_info.components["bgcode_binarize"].names["cmake_find_package_multi"] = "bgcode_binarize"
+        self.cpp_info.components["bgcode_binarize"].set_property("cmake_target_name", "LibBGCode::bgcode_binarize")
+        self.cpp_info.components["bgcode_binarize"].requires.extend(rlibs)
+
+        self.cpp_info.components["bgcode_convert"].libs = ["bgcode_convert{}".format(lib_suffix)]
+        self.cpp_info.components["bgcode_convert"].includedirs = inc_find
+        self.cpp_info.components["bgcode_convert"].names["cmake_find_package"] = "bgcode_convert"
+        self.cpp_info.components["bgcode_convert"].names["cmake_find_package_multi"] = "bgcode_convert"
+        self.cpp_info.components["bgcode_convert"].set_property("cmake_target_name", "LibBGCode::bgcode_convert")
+        self.cpp_info.components["bgcode_convert"].requires.extend(rlibs)
         self.output.warning("***** package_info.")
