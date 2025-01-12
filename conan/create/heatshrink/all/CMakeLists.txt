@@ -16,7 +16,7 @@ install(
         ${HEATSHRINK_SRC_DIR}/heatshrink_config.h
         ${HEATSHRINK_SRC_DIR}/heatshrink_decoder.h
         ${HEATSHRINK_SRC_DIR}/heatshrink_encoder.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
 
 install(
