@@ -1,0 +1,8 @@
+sources:
+  "20241001":
+    url: "https://github.com/prusa3d/libbgcode/archive/d33a277a3ce2c0a7f9ba325caac6d730e0f7a412.zip"
+    sha256: "0db3b0852df8d3ae32a4283884bc4ad6f1dd4d3c748ed679491f70b1e1d1acd5"
+
+patches:
+  "20241001":
+    - patch_file: "patches/20241001/0001-feature-rename-heatshrink.patch"
