@@ -1,4 +1,7 @@
 sources:
+  "8.1.0":
+    url: "https://github.com/qhull/qhull/archive/refs/tags/v8.1-alpha3.zip"
+    sha256: "7bd9b5ffae01e69c2ead52f9a9b688af6c65f9a1da05da0a170fa20d81404c06"
   "8.0.1":
     url: "https://github.com/qhull/qhull/archive/v8.0.1.tar.gz"
     sha256: "33c442518b033862978089776a3ec29cd771ebb535c2b4a6d604fcef043c4264"

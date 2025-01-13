@@ -94,6 +94,13 @@ class QhullConan(ConanFile):
         self.cpp_info.components["libqhull"].names["pkg_config"] = self._qhull_pkgconfig_name
         self.cpp_info.components["libqhull"].set_property("cmake_target_name", f"Qhull::{self._qhull_cmake_name}")
         self.cpp_info.components["libqhull"].set_property("pkg_config_name", self._qhull_pkgconfig_name)
+
+        if self.version >= "8.1.0":
+            self.cpp_info.components["libqhullcpp"].libs = [self._qhullcpp_lib_name]
+            self.cpp_info.components["libqhullcpp"].names["cmake_find_package"] = "libqhullcpp"
+            self.cpp_info.components["libqhullcpp"].names["cmake_find_package_multi"] = "libqhullcpp"
+            self.cpp_info.components["libqhullcpp"].set_property("cmake_target_name", "Qhull::qhullcpp")
+
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
     @property
@@ -103,6 +110,13 @@ class QhullConan(ConanFile):
             name = "qhull_r" if self.options.shared else "qhullstatic_r"
         else:
             name = "libqhull" if self.options.shared else "qhullstatic"
+        return name
+    
+    @property
+    def _qhullcpp_lib_name(self):
+        name = "qhullcpp"
+        if self.settings.build_type == "Debug":
+            name += "_d"
         return name
 
     @property
