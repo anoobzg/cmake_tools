@@ -1,4 +1,4 @@
-#include "heatshrink_encoder.h"
+#include "heatshrink/heatshrink_encoder.h"
 
 int main() {
 #if HEATSHRINK_DYNAMIC_ALLOC
