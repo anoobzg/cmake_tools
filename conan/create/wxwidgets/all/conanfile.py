@@ -160,7 +160,7 @@ class wxWidgetsConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("pcre2/10.42")
-        self.requires("nanosvg/cci.20231025")
+        self.requires("nanosvg/fltk.20221222")
 
     def validate(self):
         if self.settings.os == "Linux":
