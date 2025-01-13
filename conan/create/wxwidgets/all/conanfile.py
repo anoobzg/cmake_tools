@@ -36,6 +36,7 @@ class wxWidgetsConan(ConanFile):
                "sockets": [True, False],
                "stc": [True, False],
                "webview": [True, False],
+               "webview_edge": [True, False],
                "xml": [True, False],
                "xrc": [True, False],
                "cairo": [True, False],
@@ -50,7 +51,7 @@ class wxWidgetsConan(ConanFile):
                "shared": False,
                "fPIC": True,
                "jpeg": "libjpeg-turbo",
-               "secretstore": True,
+               "secretstore": False,
                "aui": True,
                "opengl": True,
                "html": True,
@@ -60,18 +61,19 @@ class wxWidgetsConan(ConanFile):
                "ribbon": True,
                "richtext": True,
                "sockets": True,
-               "stc": True,
+               "stc": False,
                # WebKitGTK for GTK2 is not available as a system dependency on modern distros.
                # When gtk/system defaults to GTK3, turn this back on.
-               "webview": True,
+               "webview": False,
+               "webview_edge": False,
                "xml": True,
                "xrc": True,
-               "cairo": True,
+               "cairo": False,
                "help": True,
                "html_help": True,
                "url": True,
                "protocol": True,
-               "fs_inet": True,
+               "fs_inet": False,
                "custom_enables": "",
                "custom_disables": ""
     }
@@ -85,6 +87,11 @@ class wxWidgetsConan(ConanFile):
         if self.settings.os != "Linux":
             self.options.rm_safe("secretstore")
             self.options.rm_safe("cairo")
+        if not self.options.xrc:   # XML is required for XRC
+            self.options.xml = False
+        if is_msvc(self):
+            self.options.webview_edge = True
+            self.options.webview = True
 
     def configure(self):
         if self.options.shared:
@@ -122,7 +129,7 @@ class wxWidgetsConan(ConanFile):
         yum.install(packages)
 
     def build_requirements(self):
-        self.tool_requires("ninja/1.11.1")
+        self.tool_requires("ninja/1.12.1")
         self.tool_requires("cmake/[>=3.17]")
 
     # TODO: add support for gtk non system version when it's ready for Conan 2
@@ -238,6 +245,7 @@ class wxWidgetsConan(ConanFile):
         tc.variables["wxUSE_SOCKETS"] = self.options.sockets
         tc.variables["wxUSE_STC"] = self.options.stc
         tc.variables["wxUSE_WEBVIEW"] = self.options.webview
+        tc.variables["wxUSE_WEBVIEW_EDGE"] = self.options.webview_edge
         tc.variables["wxUSE_XML"] = self.options.xml
         tc.variables["wxUSE_XRC"] = self.options.xrc
         tc.variables["wxUSE_HELP"] = self.options.help
