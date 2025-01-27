@@ -111,6 +111,7 @@ class LZ4Conan(ConanFile):
         self.cpp_info.set_property("cmake_target_aliases", ["lz4::lz4"]) # old unofficial target in CCI for lz4, kept for the moment to not break consumers
         self.cpp_info.set_property("pkg_config_name", "liblz4")
         self.cpp_info.libs = ["lz4"]
+        self.cpp_info.includedirs = ["include"]
         if is_msvc(self) and self.options.shared:
             self.cpp_info.defines.append("LZ4_DLL_IMPORT=1")
 
