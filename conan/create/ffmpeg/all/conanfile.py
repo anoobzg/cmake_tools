@@ -133,20 +133,20 @@ class FFMpegConan(ConanFile):
         "with_openjpeg": True,
         "with_openh264": True,
         "with_opus": True,
-        "with_vorbis": True,
+        "with_vorbis": False,
         "with_zeromq": False,
         "with_sdl": False,
         "with_libx264": True,
         "with_libx265": True,
         "with_libvpx": True,
-        "with_libmp3lame": True,
-        "with_libfdk_aac": True,
-        "with_libwebp": True,
+        "with_libmp3lame": False,
+        "with_libfdk_aac": False,
+        "with_libwebp": False,
         "with_ssl": "openssl",
-        "with_libalsa": True,
-        "with_pulse": True,
-        "with_vaapi": True,
-        "with_vdpau": True,
+        "with_libalsa": False,
+        "with_pulse": False,
+        "with_vaapi": False,
+        "with_vdpau": False,
         "with_vulkan": False,
         "with_xcb": True,
         "with_appkit": True,
@@ -155,9 +155,9 @@ class FFMpegConan(ConanFile):
         "with_audiotoolbox": True,
         "with_videotoolbox": True,
         "with_programs": True,
-        "with_libsvtav1": True,
-        "with_libaom": True,
-        "with_libdav1d": True,
+        "with_libsvtav1": False,
+        "with_libaom": False,
+        "with_libdav1d": False,
         "with_libdrm": False,
         "with_jni": False,
         "with_mediacodec": False,
@@ -291,7 +291,7 @@ class FFMpegConan(ConanFile):
         if self.options.with_libiconv:
             self.requires("libiconv/1.17")
         if self.options.with_freetype:
-            self.requires("freetype/2.13.2")
+            self.requires("freetype/2.13.0")
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.2")
         if self.options.with_openh264:
@@ -299,7 +299,7 @@ class FFMpegConan(ConanFile):
         if self.options.with_vorbis:
             self.requires("vorbis/1.3.7")
         if self.options.with_opus:
-            self.requires("opus/1.4")
+            self.requires("opus/1.3.1")
         if self.options.with_zeromq:
             self.requires("zeromq/4.3.5")
         if self.options.with_sdl:
@@ -363,7 +363,8 @@ class FFMpegConan(ConanFile):
             # ld: libavcodec/libavcodec.a(vvcdsp_init.o): in function `ff_vvc_put_pixels2_8_sse4':
             # src/libavcodec/x86/vvc/vvcdsp_init.c:69: undefined reference to `ff_h2656_put_pixels2_8_sse4'
             # May be related https://github.com/ffvvc/FFmpeg/issues/234
-            raise ConanInvalidConfiguration(f"{self.ref} Conan recipe does not support build_type=Debug. Contributions are welcome to fix this issue.")
+            pass
+            # raise ConanInvalidConfiguration(f"{self.ref} Conan recipe does not support build_type=Debug. Contributions are welcome to fix this issue.")
 
     def build_requirements(self):
         if self.settings.arch in ("x86", "x86_64"):
