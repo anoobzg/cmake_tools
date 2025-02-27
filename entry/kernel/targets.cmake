@@ -168,6 +168,7 @@ macro(__add_common_library target)
 			
 	if(${UpperName}_STATIC)
 		list(APPEND INTERFACE_DEFS USE_${UpperName}_STATIC)
+		list(APPEND DEFS ${UpperName}_STATIC)
 		add_library(${target} STATIC ${SRCS})
 	else()
 		list(APPEND DEFS ${UpperName}_DLL)
