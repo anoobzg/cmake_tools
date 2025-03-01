@@ -1,0 +1,37 @@
+include(${CMAKE_CURRENT_LIST_DIR}/qt5.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/qt6.cmake)
+
+macro(__enable_qt)
+    __enable_qt6()
+    if (NOT TARGET external_qt)
+        __enable_qt5()
+    endif()
+
+    __assert_target(external_qt)
+    __normal_message("Qt version: ${QT_VERSION}")
+endmacro(__enable_qt)
+
+macro(__qt_target_resources target_name)
+    cmake_parse_arguments(target "" ""
+        "UI;QRC" ${ARGN})
+    if(target_UI)
+        if(TARGET Qt6::Core)
+            qt6_wrap_ui(UI_VAR ${target_UI})
+        endif()
+        if(TARGET Qt5::Core)
+            qt5_wrap_ui(UI_VAR ${target_UI})
+        endif()
+        target_sources(${target_name} PRIVATE ${UI_VAR})
+    endif()
+    if(target_QRC)
+        if(TARGET Qt6::Core)
+            qt6_add_resources(QRC_VAR ${target_QRC})
+        endif()
+        if(TARGET Qt5::Core)
+            qt5_add_resources(QRC_VAR ${target_QRC})
+        endif()
+        target_sources(${target_name} PRIVATE ${QRC_VAR})
+    endif()
+endmacro()
+
+

@@ -12,4 +12,4 @@ include(utils/git)
 include(utils/buildinfo)
 include(utils/property)
 
-include(qt/qt5)
+include(qt/qt)

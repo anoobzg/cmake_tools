@@ -29,6 +29,12 @@
         }
       },
       {
+        "name": "vs2022-debug",
+        "displayName": "vs2022 debug",
+        "inherits": "x64-debug",
+        "generator": "Visual Studio 17 2022"
+      },
+      {
         "name": "x64-release",
         "displayName": "x64 Release",
         "description": "Sets release build type",
@@ -36,6 +42,12 @@
         "cacheVariables": {
           "CMAKE_BUILD_TYPE": "Release"
         }
+      },
+      {
+        "name": "vs2022-release",
+        "displayName": "vs2022 release",
+        "inherits": "x64-release",
+        "generator": "Visual Studio 17 2022"
       },
       {
         "name": "x86-debug",
