@@ -29,7 +29,7 @@ class AssimpConan(ConanFile):
         "double_precision": [True, False],
     }
     default_options = {
-        "shared": True,
+        "shared": False,
         "fPIC": True,
         "double_precision": False,
     }
