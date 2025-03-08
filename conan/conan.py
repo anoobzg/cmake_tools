@@ -25,10 +25,11 @@ project
 
 upload = False
 use_external_rep = False
+remove_package = False
 #parse args
 argv = sys.argv[1:]
 try:
-    opts, args = getopt.getopt(argv,"-u-e",['type=', 'channel_name='])
+    opts, args = getopt.getopt(argv,"-u-e-r",['type=', 'channel_name='])
 except getopt.GetoptError as e:
     logger.error(e)
     sys.exit(2)
@@ -44,22 +45,24 @@ for opt, arg in opts:
         use_external_rep = True
     if opt in ("-u"):
         upload = True
+    if opt in ("-r"):
+        remove_package = True
             
 conan = ci_conan.Conan(cmake_path, logger, use_external_rep)
 if recipe_type.startswith('recipe'):
-    conan.create_one(recipe_type.split('|')[1], channel_name, upload, True)
+    conan.create_one(recipe_type.split('|')[1], channel_name, upload, remove_package)
     
 if recipe_type.startswith('patch'):
-    conan.create_from_patch_file(recipe_type.split('|')[1], channel_name, upload, True)
+    conan.create_from_patch_file(recipe_type.split('|')[1], channel_name, upload, remove_package)
     
 if recipe_type.startswith('subs'):
-    conan.create_from_subs_file(recipe_type.split('|')[1], channel_name, upload, True)
+    conan.create_from_subs_file(recipe_type.split('|')[1], channel_name, upload, remove_package)
     
 if recipe_type.startswith('whole'):
-    conan.create_whole(channel_name, upload, True)
+    conan.create_whole(channel_name, upload, remove_package)
     
 if recipe_type.startswith('project'):
-    conan.create_project_conan(channel_name, upload, True)
+    conan.create_project_conan(channel_name, upload, remove_package)
 
 if recipe_type.startswith('circle'):
     conan.create_circle_conan(channel_name, upload)

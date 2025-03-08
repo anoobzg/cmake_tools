@@ -10,8 +10,12 @@ class MainEntry(ConanFile):
     generators = "cmake"
 
     def init(self):
+        print("[conan DEBUG] conanfile.py init.")
+        print("[conan DEBUG] self.recipe_folder: " + self.recipe_folder)
+        
         self.origin_recipe_folder = self.recipe_folder
         self.conanfile_file = self.recipe_folder + "/requires.txt"
+        print("[conan DEBUG] self.conanfile_file: " + self.conanfile_file)
         
         self.version = self.conan_data["version"]
         self.name = self.conan_data["name"]
@@ -24,7 +28,7 @@ class MainEntry(ConanFile):
             self.repository = self.conan_data['external_repository']
             
         self.userchannel = self.conan_data["channel"]
-        self.cmake_rep = 'http://172.20.180.12:8050/yanfa4/shared/cmake'
+        self.cmake_rep = 'http://172.19.12.115:8888/piocreat/software/slicerdev/PiocreateBox/cmake.git'
         self.defs = []
             
         if "defs" in self.conan_data:
@@ -53,7 +57,7 @@ class MainEntry(ConanFile):
     def source(self):
         print("[conan DEBUG] source. {0} {1}".format(self.repository, self.version))
 
-        self.run("git clone {0} cmake".format(self.cmake_rep))
+        self.run("git clone {0} cmake -b master".format(self.cmake_rep))
         self.run("git clone " + self.repository + " -b version-" + self.version + " " + self.name)
             
     def export_sources(self):

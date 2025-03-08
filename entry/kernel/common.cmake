@@ -94,3 +94,19 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include_directories(${CMAKE_BINARY_DIR})
 
 
+# main parameters
+set(__CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../)    # cmake/entry
+set(__PYTHON_MODULES "${__CMAKE_MODULE_PATH}/../pmodules/")
+set(__BIN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/../bin")
+set(__LIB_OUTPUT_DIR "${CMAKE_BINARY_DIR}/../lib")
+
+macro(__include_cmake_module cmake_module)
+	# add cmake module from cmake/entry/
+	set(MODULE_PATH "${__CMAKE_MODULE_PATH}/${cmake_module}.cmake")
+	if(EXISTS ${MODULE_PATH})
+		include(${MODULE_PATH})
+	else()
+		__fatal_message("Can't find module ${MODULE_PATH}")
+	endif()
+endmacro()
+

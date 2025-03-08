@@ -1,8 +1,7 @@
 license: "<GLP>"
 author: "<zenggui> <anoob@sina.cn>"
 url: "<xxxxxx>"
-repository: "http://172.20.180.12:8050/yanfa4/thirdparty/semver"
-external_repository: "https://github.com/CrealityOfficial/semver"
+repository: "http://172.19.12.115:8888/piocreat/software/slicerdev/deps/halotdeps/thirdparty/semver"
 description: "<semver>"
 topics: "<semver>"
 

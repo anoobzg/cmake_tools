@@ -29,14 +29,14 @@ macro(__find_python)
 		__normal_message("Python3 Release LIBRARIES : ${Python3_LIBRARIES_RELEASE}")
 		set(PYTHON_LIBRARY Python3)
 
-		if(NOT TARGET _Python3)
-			add_library(_Python3 INTERFACE IMPORTED)
+		if(NOT TARGET external_python)
+			add_library(external_python INTERFACE IMPORTED)
 
-			set_property(TARGET _Python3 APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+			set_property(TARGET external_python APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
 						$<$<CONFIG:Debug>:${Python3_INCLUDE_DIRS}>
 						$<$<CONFIG:Release>:${Python3_INCLUDE_DIRS}>)
 
-			set_property(TARGET _Python3 APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+			set_property(TARGET external_python APPEND PROPERTY INTERFACE_LINK_LIBRARIES
 						$<$<CONFIG:Debug>:${Python3_LIBRARIES_DEBUG}>
 						$<$<CONFIG:Release>:${Python3_LIBRARIES_RELEASE}>)
 		endif()

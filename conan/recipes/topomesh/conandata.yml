@@ -1,8 +1,7 @@
 license: "<GLP>"
 author: "<zenggui> <anoob@sina.cn>"
 url: "<xxxxxx>"
-repository: "http://172.20.180.12:8050/yanfa4/alg/topomesh"
-external_repository: "https://github.com/CrealityOfficial/topomesh"
+repository: "http://172.19.12.115:8888/piocreat/software/slicerdev/deps/halotdeps/alg/topomesh"
 description: "<topomesh>"
 topics: "<mesh>,<algrithm>,<mesh>"
 

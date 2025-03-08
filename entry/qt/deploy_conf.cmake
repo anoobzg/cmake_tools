@@ -1,0 +1,2 @@
+set(QT_DEPLOY_BIN_DIR ".")
+set(QT_DEPLOY_PLUGINS_DIR ".")

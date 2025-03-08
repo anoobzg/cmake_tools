@@ -209,7 +209,7 @@ class Conan():
     upload conan package  recipe@channel
     '''
     def _conan_upload(self, recipe, channel):
-        cmd = 'conan upload {}@{} -r artifactory --all -c'.format(recipe, channel)
+        cmd = 'conan upload {}@{} -r piocreat --all -c'.format(recipe, channel)
         executor.run(cmd, False, self.logger)
     
     def recipe_2_name_version(self, recipe):
@@ -254,6 +254,10 @@ class Conan():
             self.logger.info("_create_from_internal_template subs {}".format(sub_libs))
             
             try:
+                self.logger.info("_create_from_internal_template copy meta_file {}".format(meta_file))
+                self.logger.info("_create_from_internal_template copy cmake_file {}".format(cmake_file))
+                self.logger.info("_create_from_internal_template copy conan_file {}".format(conan_file))
+
                 shutil.copy2(conan_file, temp_directory)
                 shutil.copy2(cmake_file, temp_directory)
                 shutil.copy2(meta_file, temp_directory)
@@ -355,7 +359,7 @@ class Conan():
     
     def _check_package(self, name, checkBinary=True):
         ret = executor.run_result('conan search {0}'.format(name))
-        #self.logger.info('_check_package result {}'.format(ret))
+        # self.logger.info('_check_package result {}'.format(ret))
         if checkBinary == True:
             return len(ret) > 0 and not 'There are no packages' in ret
         else:
@@ -555,6 +559,8 @@ class ConanCircleCreator():
             rep_commit_id = self._rep_commit_id(cmake_rep)
             meta_yml = cmake_rep / 'conandata.yml'
             recipe_meta = self._create_conan_meta(str(meta_yml), name, version)
+            # check after build
+            meta_yml = str(self.conan.conan_path) + "/recipes/" + name + "/conandata.yml"; 
             recipe_meta.cmake_rep = cmake_rep
             recipe_meta.rep_commit_id = rep_commit_id
             recipe_meta.meta_yml = meta_yml
@@ -594,6 +600,7 @@ class ConanCircleCreator():
         self.logger.warning('search_deps : {}'.format(meta.search_deps))
         self.logger.warning('cmake_rep : {}'.format(str(meta.cmake_rep)))
         self.logger.warning('rep_commit_id : {}'.format(meta.rep_commit_id))
+        self.logger.warning('meta_yml : {}'.format(str(meta.meta_yml)))
         self.logger.warning('{}***********************************\n'.format(meta.name_version))
         
     def _clone_meta_json(self, url, output, version):
@@ -613,7 +620,21 @@ class ConanCircleCreator():
         
         #self.logger.info('{} ->\n {}'.format(cmd, result))
         if result == '' or not result.startswith('{'):    
-            result = '{}'
+            result_list = []
+            stack = []
+            start = -1
+
+            for i, char in enumerate(result):
+                if char == '{':
+                    start = i
+                elif char == '}' and start != -1:
+                    result_list.append(result[start:i+1])
+                    start = -1
+
+            if len(result_list) > 0:
+                result = result_list[0]
+            else:
+                result = '{}'
         conan_datas = eval(result)
         #self.logger.info('eval result ->\n {}'.format(conan_datas))
         

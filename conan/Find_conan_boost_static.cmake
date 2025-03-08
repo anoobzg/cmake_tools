@@ -6,7 +6,7 @@ set(BOOST_COMPONETS boost_filesystem
 					boost_nowide
 					boost_regex
 					boost_system
-					boost_thread
+					# boost_thread
 					boost_chrono
 					)
 					

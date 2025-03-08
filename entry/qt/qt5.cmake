@@ -14,6 +14,15 @@ macro(__enable_qt5)
 		
 		if(TARGET Qt5::Core)
 			set(QT5_ENABLED 1)
+
+			set(QT_VERSION ${Qt5_VERSION})
+			set(QT_VERSION_MAJOR 5)
+
+			add_library(external_qt INTERFACE IMPORTED GLOBAL)
+			add_library(external_qt::external_qt ALIAS external_qt)
+		
+			set(libs Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network Qt5::Svg Qt5::OpenGL Qt5::OpenGLWidgets)
+			target_link_libraries(external_qt INTERFACE ${libs})
 		endif()
 	endif()
 endmacro()

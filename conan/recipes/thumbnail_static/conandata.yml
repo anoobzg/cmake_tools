@@ -1,8 +1,7 @@
 license: "<GLP>"
 author: "<zenggui> <anoob@sina.cn>"
 url: "<xxxxxx>"
-repository: "http://172.20.180.12:8050/yanfa4/thirdparty/thumbnail"
-external_repository: "https://github.com/CrealityOfficial/thumbnail"
+repository: "http://172.19.12.115:8888/piocreat/software/slicerdev/deps/halotdeps/thirdparty/thumbnail"
 description: "<thumbnail>"
 topics: "<mesh>,<algrithm>,<mesh>"
 
