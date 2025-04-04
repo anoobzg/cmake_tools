@@ -21,3 +21,4 @@ build-debug/
 build-release/
 .vscode/
 .history/
+.DS_Store

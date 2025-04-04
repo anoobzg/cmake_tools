@@ -1,0 +1,9 @@
+#win
+python.exe ./cmake/ci/package/pack.py --version_major=999 
+                                      --version_minor=100
+                                      --version_patch=99
+                                      --version_extra="Release"
+                                      --build_id=198012313
+                                      --custom_type="HalotBox"
+#mac
+python3 ./cmake/ci/package/pack.py --version_major=999 --version_minor=100 --version_patch=99 --version_extra="Release" --build_id=198012313 --custom_type="HalotBox"

@@ -22,7 +22,7 @@ def system(cmd):
 def working_path_from_ci(path):
     return path[0:-8]
     
-def conan_install(working_path, project_path, channel):
+def conan_install(working_path, project_path, channel, build=True, only_root=False, update=True):
     if Global_conan == False:
         return
         
@@ -30,23 +30,32 @@ def conan_install(working_path, project_path, channel):
     graph_file = working_path + '/graph.txt'
     base_graph_file = working_path + '/cmake/conan/graph/libs.xml'
     
-    createUtil.create_conan_file_from_graph(base_graph_file, graph_file, conan_file, channel)
+    createUtil.create_conan_file_from_graph(base_graph_file, graph_file, conan_file, channel, only_root=only_root)
     
     if os.path.exists(conan_file):
-        cmd = 'conan install  -g cmake_multi -s build_type=Debug --build=missing -if ' + project_path + ' ' + project_path + ' --update'
+        cmd = 'conan install  -g cmake_multi -s build_type=Debug -if ' + project_path + ' ' + project_path
+        if build == True:
+            cmd += ' --build=missing'
+        if update == True:
+            cmd += ' --update'
+
         os.system(cmd)
-        cmd = 'conan install -g cmake_multi -s build_type=Release --build=missing -if ' + project_path + ' ' + project_path + ' --update'
+        cmd = 'conan install -g cmake_multi -s build_type=Release -if ' + project_path + ' ' + project_path
+        if build == True:
+            cmd += ' --build=missing'
+        if update == True:
+            cmd += ' --update'
         os.system(cmd)    
     
 def win_conan_cmake(working_path, channel):
     project_path = working_path + '/win32-build/build/'
     mkdirs(project_path)
-
+      
     print("[cmake/ci] project path :" + project_path)
     debug_str = ""
     if(Global_Debug == True):
         debug_str = " -DCXX_VLD=ON"
-    conan_install(working_path, project_path, channel)
+    conan_install(working_path, project_path, channel, only_root=True)
 
     # example: VS_VERSION=Visual Studio 17 2022 in system PATH
     vs_version = os.environ.get('VS_VERSION', 'Visual Studio 16 2019')
@@ -70,7 +79,7 @@ def linux_conan_cmake(working_path, channel):
     mkdirs(project_path)
       
     print("[cmake/ci] project path :" + project_path)
-    conan_install(working_path, project_path, channel)
+    conan_install(working_path, project_path, channel, only_root=True)
     cmd = 'cmake -G "Ninja" -DCMAKE_USE_CONAN=ON -S ' + working_path + ' -B ' + project_path
         
     os.system(cmd)
@@ -81,7 +90,7 @@ def mac_conan_cmake(working_path, channel):
     mkdirs(project_path)
       
     print("[cmake/ci] mac project path :" + project_path)
-    conan_install(working_path, project_path, channel)
+    conan_install(working_path, project_path, channel, only_root=True)
     cmd = 'cmake -DCMAKE_USE_CONAN=ON -S ' + working_path + ' -B ' + project_path
         
     os.system(cmd)
@@ -92,7 +101,7 @@ def jwin_conan_cmake(working_path):
     mkdirs(project_path)
       
     print("[cmake/ci] project path :" + project_path)
-    conan_install(working_path, project_path, 'desktop/win')
+    conan_install(working_path, project_path, 'desktop/win', only_root=True)
     cmd = 'cmake -G "Ninja" -DCMAKE_USE_CONAN=ON -S ' + working_path + ' -B ' + project_path   
     os.system(cmd)  
     return project_path

@@ -41,24 +41,26 @@ def get_txt_libs(file_name):
         file.close()    
     return libs
     
-def create_libs_from_txt(graph_file):
+def create_libs_from_txt(graph_file, only_root=False):
     libs = get_txt_libs(str(Path(graph_file)))
-    children = Path(graph_file).parent.iterdir()
-    for idx, element in enumerate(children):    
-        if element.is_dir():
-            child_graph_file = element.joinpath('graph.txt')
-            #print("create_libs_from_txt -> load {0}".format(child_graph_file))
-            
-            if child_graph_file.exists() == True:
-                sub_libs = get_txt_libs(str(child_graph_file))
-                libs.extend(sub_libs)
+
+    if only_root == False:
+        children = Path(graph_file).parent.iterdir()
+        for idx, element in enumerate(children):    
+            if element.is_dir():
+                child_graph_file = element.joinpath('graph.txt')
+                #print("create_libs_from_txt -> load {0}".format(child_graph_file))
+                
+                if child_graph_file.exists() == True:
+                    sub_libs = get_txt_libs(str(child_graph_file))
+                    libs.extend(sub_libs)
         
     return libs
 
 def collect_unique_libs(subs, libs):
     result = []
     
-    first = libs;
+    first = libs
     second = []
     while len(first) > 0:
         for value in first:
@@ -115,9 +117,9 @@ def write_conan_file(conanfile, libs, channel):
         file.write('\n')
     file.close()     
     
-def create_conan_file_from_graph(base_graph_file, graph_file, conanfile, channel):
+def create_conan_file_from_graph(base_graph_file, graph_file, conanfile, channel, only_root=False):
     subs = create_base_libs_from_xml(base_graph_file)
-    libs = create_libs_from_txt(graph_file)
+    libs = create_libs_from_txt(graph_file, only_root)
     uniques = collect_unique_libs(subs, libs)
     
     print('create_conan_file_from_graph -> ' + str(uniques))

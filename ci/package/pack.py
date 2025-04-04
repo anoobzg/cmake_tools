@@ -10,24 +10,77 @@ execute_dir = Path(sys.path[0]).resolve()
 source_dir = execute_dir.parent.parent.parent
 
 import log
+import git
 logger = log.create_log('pack')
 logger.info("execute_dir : {}".format(execute_dir))
 logger.info("source_dir : {}".format(source_dir))
 
+# -DPROJECT_VERSION_MAJOR=%MAJOR% ^
+# -DPROJECT_VERSION_MINOR=%MINOR% ^
+# -DPROJECT_VERSION_PATCH=%PATCH% ^
+# -DPROJECT_BUILD_ID=%BUILD% ^
+# -DPROJECT_VERSION_EXTRA=%VERSION_EXTRA% ^
+
 preset_name = 'ninja-release'
 cmake_args = ""
+
+# param
+version_major = 0
+version_minor = 0
+version_patch = 0
+version_extra = "Unknown"
+custom_type = ""
+
+build_id = ""
+
 #parse args
 try:
-    opts, args = getopt.getopt(sys.argv[1:], shortopts='', longopts=['cmake_args=','preset_name='])
+    opts, args = getopt.getopt(sys.argv[1:], shortopts='',
+                                longopts=['custom_type=',
+                                          'version_major=',
+                                          'version_minor=',
+                                          'version_patch=',
+                                          'version_extra=',
+                                          'build_id=',
+                                          'preset_name=']
+                                          )
     logger.info("getopt.getopt -> : {}".format(str(opts)))
 except getopt.GetoptError:
     logger.warning("_parse_args error.")
     sys.exit(2)
 for opt, arg in opts:
-    if opt == '--cmake_args':
-        cmake_args = arg 
-    if opt == '--preset_name':
+    if opt == '--version_major':
+        version_major = arg
+    elif opt == '--version_minor':
+        version_minor = arg
+    elif opt == '--version_patch':
+        version_patch = arg
+    elif opt == '--version_extra':
+        version_extra = arg
+    elif opt == '--build_id':
+        build_id = arg
+    elif opt == '--preset_name':
         preset_name = arg 
+    elif opt == '--custom_type':
+        custom_type = arg
+
+# build_id use git hash, if not set
+if build_id == "":
+    build_id = git.get_main_hash(source_dir)
+
+cmake_args = "-DPROJECT_VERSION_MAJOR={0} "\
+            "-DPROJECT_VERSION_MINOR={1} "\
+            "-DPROJECT_VERSION_PATCH={2} "\
+            "-DPROJECT_BUILD_ID={3} "\
+            "-DPROJECT_VERSION_EXTRA={4} "\
+            "-DCUSTOM_TYPE={5}"\
+                .format(version_major, 
+                        version_minor, 
+                        version_patch, 
+                        build_id, 
+                        version_extra,
+                        custom_type
+                        )
 
 binary_dir =  source_dir.joinpath('./out/{}/build/'.format(preset_name))
 install_dir = source_dir.joinpath('./out/{}/install/'.format(preset_name))

@@ -121,7 +121,40 @@ def traverse_directory(dir_path, operate_func, parameter):
             operate_func(parameter, dir_path, file)
       
 ##### main #####        
-def exec(out_directory = '', base_directory = ''):
+def exec1(project_path = ''):
+    print("shader binarization begin.")
+    
+    script_path = sys.path[0].replace("\\", "/")
+    if project_path == '':
+        print("using default path.")
+        project_path = script_path + "/../../win32-build/build"
+    print("project path: " + project_path)
+    
+    base_directory = script_path + "/../../shader_entity/shaders"
+    if os.path.exists(base_directory) == False:
+        return
+    
+    GL3_input_path = base_directory + "/gl/3.3"
+    GL3_output_path = project_path + "/shader_entity/GL.code"
+    GLES2_input_path = base_directory + "/gles/3"
+    GLES2_output_path = project_path + "/shader_entity/GL.code"
+    print("gl3 shader directory: " + GL3_input_path)
+    print("gles shader directory: " + GLES2_input_path)
+    print("output: " + GL3_output_path)
+    
+    gl3_shader_binarization = shader_binarization_t("gl3.0", "")
+    traverse_directory(GL3_input_path, add_shader, gl3_shader_binarization)
+    gl3_shader_binarization.out(GL3_output_path, "w")
+    
+    gles_shader_binarization = shader_binarization_t("gles", "gles")
+    traverse_directory(GLES2_input_path, add_shader, gles_shader_binarization)
+    gles_shader_binarization.out(GLES2_output_path, "a")
+    
+    gl3_shader_binarization.out_program_def(GL3_output_path, "a")
+    
+    print("shader binarization completed.")
+
+def exec2(out_directory = '', base_directory = ''):
     
     script_path = sys.path[0].replace("\\", "/")
     if out_directory == '':
@@ -159,9 +192,11 @@ def exec(out_directory = '', base_directory = ''):
     gl3_shader_binarization.out_program_def(GL3_output_path, "a")
     
     print("shader binarization completed.")
-
+	
 if __name__ == "__main__":
-    if len(sys.argv) > 2:
-        exec(sys.argv[1], sys.argv[2])
+    if len(sys.argv) == 2:
+        exec1(sys.argv[1])
+    elif len(sys.argv) == 3:
+        exec2(sys.argv[1], sys.argv[2])
     else:
-        exec()
+        exec1()
