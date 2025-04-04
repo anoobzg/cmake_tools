@@ -1,6 +1,7 @@
 import os
 import sys
 import pathlib
+import platform
 
 def parse_recipe():
     name = 'default'
@@ -30,3 +31,22 @@ def search_recipe_path(name, version) -> pathlib.Path:
         print("FileNotFoundError : {}".format(config_file))
 
     return recipe_root
+
+def conan_upload(name, version):
+    system = platform.system()
+    cmd = "conan upload -r artifactory {}/{} ".format(name, version)
+
+    if system == "Windows":
+        cmd = "start /B /wait {}".format(cmd) 
+    os.system(cmd)
+
+def conan_create(recipe_path, version, build_type, is_static=False):
+    cmd = "conan create {} -s build_type={} --version {}".format(str(recipe_path), build_type, version)
+    if is_static == True:
+        cmd = "{} -s compiler.runtime=static".format(cmd)
+
+    if system == "Windows":
+        cmd = "start /B /wait {}".format(cmd)
+         
+    os.system(cmd)
+    
