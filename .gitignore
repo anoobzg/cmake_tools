@@ -17,6 +17,8 @@ msvc-194-x86_64-14-debug/
 msvc-194-x86_64-14-release/
 msvc-194-x86_64-17-debug/
 msvc-194-x86_64-17-release/
+gcc-12-armv8-gnu17-debug/
+gcc-12-armv8-gnu17-release/
 build-debug/
 build-release/
 .vscode/
