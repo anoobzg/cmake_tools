@@ -1,0 +1,1 @@
+. "/home/anoob/Public/work/mgba/cmake/conan/create/m4/all/test_package/conanbuildenv-release-armv8.sh"

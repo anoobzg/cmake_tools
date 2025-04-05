@@ -1,0 +1,1 @@
+. "/home/anoob/Public/work/mgba/cmake/conan/create/gnu-config/all/test_package/deactivate_conanbuildenv-release-armv8.sh"
