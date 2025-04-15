@@ -58,7 +58,7 @@ def win_conan_cmake(working_path, channel):
     conan_install(working_path, project_path, channel, only_root=True)
 
     # example: VS_VERSION=Visual Studio 17 2022 in system PATH
-    vs_version = os.environ.get('VS_VERSION', 'Visual Studio 16 2019')
+    vs_version = os.environ.get('VS_VERSION', 'Visual Studio 17 2022')
     cmd = f'cmake -G "{vs_version}" -DCMAKE_USE_CONAN=ON -S {working_path} -B {project_path}{debug_str} -T host=x64 -A x64'
 
     os.system(cmd)

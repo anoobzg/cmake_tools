@@ -43,12 +43,16 @@ macro(__qt_target_resources target_name)
     endif()
 endmacro()
 
-macro(__deploy_qt_target target_name)
-    if(TARGET Qt6::Core)
+function(__deploy_qt_target)
+    cmake_parse_arguments(arg "" "TARGET" "" ${ARGN})
+    if(NOT arg_TARGET)
+        __error_message("__deploy_qt_target. No target specified")
+    endif()
 
+    if(TARGET Qt6::Core)
         install(SCRIPT ${__CMAKE_MODULE_PATH}/qt/deploy_conf.cmake)
         qt_generate_deploy_app_script(
-            TARGET ${target_name}
+            ${ARGN}
             OUTPUT_SCRIPT deploy_script
             NO_UNSUPPORTED_PLATFORM_ERROR
         )
@@ -56,16 +60,83 @@ macro(__deploy_qt_target target_name)
         __normal_message("Deploy qt script: ${deploy_script}")
         install(SCRIPT ${deploy_script})
     elseif(TARGET Qt5::Core)
-        include(${__CMAKE_MODULE_PATH}/qt/deploy_qt5.cmake)
-        if(CC_BC_WIN)
-            __windeployqt(${target_name})
-        elseif(CC_BC_MAC)
-            __macdeployqt(${target_name})
-        elseif(CC_BC_LINX)
-            __linuxdeployqt(${target_name})
-        endif()
+        get_target_property(QT_QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
+        get_filename_component(QT_BIN_DIR ${QT_QMAKE_EXECUTABLE} DIRECTORY)
+        set(QT_ROOT_DIR "${QT_BIN_DIR}/..")
+
+        if(CC_BC_MAC)
+            set(MACDEPLOYQT "${QT_BIN_DIR}/macdeployqt")
+
+            install(CODE "
+                message(STATUS \"Running macdeployqt on installed $<TARGET_FILE_NAME:${arg_TARGET}> bundle...\")
+                execute_process(
+                    COMMAND \"${MACDEPLOYQT}\" \"$<TARGET_FILE_NAME:${arg_TARGET}>.app\"
+                    -always-overwrite
+                    -appstore-compliant
+                    -verbose=1
+                    -qmldir=${QML_ENTRY_DIR}
+                    WORKING_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}\"
+                    OUTPUT_VARIABLE   output
+                )
+                message(STATUS \"${MACDEPLOYQT} output: ${output}\")
+            ")
+
+            set(QT_PLUGINS_DIR "${QT_ROOT_DIR}/plugins")
+            # install qt extra plugins
+            set(extra_plugin_dirs
+                                "renderers"
+                                )
+            foreach(plugin_dir IN LISTS extra_plugin_dirs)
+                install(DIRECTORY "${QT_PLUGINS_DIR}/${plugin_dir}/"
+                        DESTINATION "$<TARGET_FILE_NAME:${arg_TARGET}>.app/Contents/PlugIns/${plugin_dir}/"
+                        FILES_MATCHING PATTERN "*.dylib")
+            endforeach()
+
+            install(
+                FILES ${CMAKE_SOURCE_DIR}/cmake/ci/package/deployqt.sh
+                    ${CMAKE_SOURCE_DIR}/cmake/ci/check_deps.sh
+                DESTINATION .
+                PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ 
+            )
+
+            install(CODE "
+                execute_process(
+                    COMMAND bash deployqt.sh \"$<TARGET_FILE_NAME:${arg_TARGET}>.app\"
+                    WORKING_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}\"
+                    RESULT_VARIABLE result
+                )
+                
+                if(NOT result EQUAL 0)
+                    message(FATAL_ERROR \"Failed to run deployqt.sh: \${result}\")
+                endif()
+                ")
+
+        elseif(CC_BC_WIN)
+            find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${QT_BIN_DIR}")
+            if(WIN32 AND NOT WINDEPLOYQT_EXECUTABLE)
+                message(FATAL_ERROR "windeployqt not found")
+            endif()
+
+            install(CODE "
+                message(STATUS \"Running windeployqt on installed $<TARGET_FILE_NAME:${arg_TARGET}>...\")
+                execute_process(
+                    COMMAND \"${WINDEPLOYQT_EXECUTABLE}\" \"$<TARGET_FILE_NAME:${arg_TARGET}>\"
+                    --verbose 0
+                    --no-compiler-runtime
+                    --angle
+                    --qmldir ${QML_ENTRY_DIR}
+                    --dir .
+                    OUTPUT_VARIABLE   output
+                    WORKING_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}\"
+                )
+                message(STATUS \"${WINDEPLOYQT_EXECUTABLE} output: ${output}\")
+            ")
+
+            # INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/windeployqt/ DESTINATION .)
+        else()
+        endif()	
     endif()
-endmacro()
+endfunction()
 
 macro(__build_qml_plugin target_name)
 	if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/qmldir)

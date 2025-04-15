@@ -8,6 +8,7 @@ include(kernel/cxx)
 include(kernel/targets)
 include(kernel/conan)
 include(kernel/python)
+include(kernel/install)
 
 include(utils/files)
 include(utils/git)
