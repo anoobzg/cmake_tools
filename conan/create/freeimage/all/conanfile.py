@@ -34,15 +34,15 @@ class FreeImageConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": "libjpeg-turbo",
         "with_png": True,
-        "with_tiff": True,
+        "with_tiff": False,
         "with_jpeg2000": True,
-        "with_openexr": True,
+        "with_openexr": False,
         "with_eigen": True,
-        "with_webp": True,
-        "with_raw": True,
-        "with_jxr": True,
+        "with_webp": False,
+        "with_raw": False,
+        "with_jxr": False,
     }
 
     short_paths = True
@@ -71,13 +71,13 @@ class FreeImageConan(ConanFile):
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/3.0.0")
+            self.requires("libjpeg-turbo/3.0.2")
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.1")
         if self.options.with_jpeg2000:
-            self.requires("openjpeg/2.5.0")
+            self.requires("openjpeg/2.5.2")
         if self.options.with_png:
-            self.requires("libpng/1.6.40")
+            self.requires("libpng/1.6.43")
         if self.options.with_webp:
             self.requires("libwebp/1.3.2")
         if self.options.with_tiff or self.options.with_openexr:
