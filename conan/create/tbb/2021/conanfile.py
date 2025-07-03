@@ -32,7 +32,7 @@ class TBBConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "tbbmalloc": False,
+        "tbbmalloc": True,
         "tbbproxy": False,
     }
 

@@ -32,6 +32,60 @@ def search_recipe_path(name, version) -> pathlib.Path:
 
     return recipe_root
 
+def modify_yml_file(recipe_root, name, version):
+    if name == "opencv":
+        return
+    
+    import yaml
+    conandata_yml = recipe_root.joinpath("conandata.yml")
+    try:
+        data = {}
+        with open(conandata_yml, 'r') as file:
+            data = yaml.safe_load(file)
+
+        all_versions = data['sources'][version]
+        if 'url' in all_versions:
+            urls = all_versions['url']
+            is_list = isinstance(urls, list)
+            url = urls[0] if is_list else urls
+            if not is_list:
+                print("Using Single URL: {}".format(url))
+            elif is_list:
+                print("Using First URL: {}".format(url))
+            
+            is_url_file = True if url.startswith('file:///') else False
+            file = None
+            if not is_url_file:    
+                folder = url.replace('https://', '')
+                file = 'file:///D://code//Gitea//out//' + folder
+            else:
+                print("File URL already exists in conandata.yml: {}".format(url))
+                file = url
+                
+            real_path = file.replace('file:///', '')
+            if not os.path.exists(real_path):
+                print("Downloading file: {0} -> {1}".format(url, real_path))
+                os.system(f"curl -L -o {real_path} --create-dirs --retry 3  {url}")
+
+            if not is_url_file:
+                if is_list:
+                    if not file in data['sources'][version]['url']:
+                        print("Adding file to conandata.yml: {}".format(file))
+                        data['sources'][version]['url'].insert(0, file)
+                else:
+                    print("Adding file to conandata.yml: {}".format(real_path))
+                    data['sources'][version]['url'] = [file, url]
+
+            with open(conandata_yml, 'w', encoding='utf-8') as f:
+                yaml.dump_all(documents=[data], stream=f, allow_unicode=True)
+
+                
+
+    except FileNotFoundError:
+        print("FileNotFoundError : {}".format(conandata_yml))
+    except ValueError as e:
+        print("ValueError : {}".format(e))
+
 def conan_upload(name, version):
     system = platform.system()
     cmd = "conan upload -r artifactory {}/{} ".format(name, version)

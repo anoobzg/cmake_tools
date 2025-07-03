@@ -1,0 +1,9 @@
+sources:
+  1.0.0:
+    sha256: 34ed402f43f30ce5e39812642c9533c11082cd2bc092341c65160f5c743be95b
+    url: https://sourceforge.net/projects/libnoise/files/libnoise%20sources/1.0.0/libnoisesrc-1.0.0.zip
+  1.0.1:
+    sha256: 96ffd6cc47898dd8147aab53d7d1b1911b507d9dbaecd5613ca2649468afd8b6
+    url:
+    - file:///D://code//Gitea//out//github.com/SoftFever/Orca-deps-libnoise/archive/refs/tags/1.0.zip
+    - https://github.com/SoftFever/Orca-deps-libnoise/archive/refs/tags/1.0.zip
