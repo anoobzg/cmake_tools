@@ -18,4 +18,4 @@ for %%v in (PATH) do (
 endlocal
 
 
-set "PATH=C:\Users\cx1959\.conan2\p\b\yasma591285e0522c\p\bin;%PATH%"
+set "PATH=E:\conan\p\b\yasm8f9f655cb409a\p\bin;%PATH%"

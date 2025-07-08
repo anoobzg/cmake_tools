@@ -1,3 +1,5 @@
 sources:
-  "2021.5":
-    url: "https://github.com/oneapi-src/oneTBB/archive/v2021.5.0.tar.gz"
+  '2021.5':
+    url:
+    - file:///D://code//Gitea//out//github.com/oneapi-src/oneTBB/archive/v2021.5.0.tar.gz
+    - https://github.com/oneapi-src/oneTBB/archive/v2021.5.0.tar.gz
