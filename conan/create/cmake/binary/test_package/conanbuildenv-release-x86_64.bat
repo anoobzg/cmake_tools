@@ -18,8 +18,4 @@ for %%v in (PATH) do (
 endlocal
 
 
-<<<<<<< HEAD
-set "PATH=C:\Users\anoob\.conan2\p\b\cmake90ffae3661c1c\p\bin;%PATH%"
-=======
 set "PATH=E:\conan\p\b\cmakeec3131f603ec4\p\bin;%PATH%"
->>>>>>> 52abb0bc (modify)
