@@ -20,4 +20,6 @@ sources:
     - https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.xz
   2.16.01:
     sha256: c77745f4802375efeee2ec5c0ad6b7f037ea9c87c92b149a9637ff099f162558
-    url: https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/nasm-2.16.01.tar.xz
+    url:
+    - file:///D://code//Gitea//out//www.nasm.us/pub/nasm/releasebuilds/2.16.01/nasm-2.16.01.tar.xz
+    - https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/nasm-2.16.01.tar.xz
