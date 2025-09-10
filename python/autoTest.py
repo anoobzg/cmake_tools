@@ -2,6 +2,7 @@ import sys
 import os
 import osSystem
 import json
+import ast
 import requests
 import platform
 import subprocess
@@ -14,7 +15,10 @@ class AutoTestBench():
         self.origin_path = Path(sys.path[0] + '/../../')
         self.bin_path = self.origin_path.joinpath('linux-build/bin/Release/')
         self.system = platform.system()
-        self.JECKINS_INFO = eval(sys.argv[1])
+        try:
+            self.JECKINS_INFO = json.loads(sys.argv[1])
+        except Exception:
+            self.JECKINS_INFO = ast.literal_eval(sys.argv[1])
         
         self.webhook = self.JECKINS_INFO['WEBHOOK']
         self.commit_id = self.JECKINS_INFO['COMMIT_ID']
