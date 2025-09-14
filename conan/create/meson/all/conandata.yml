@@ -45,7 +45,9 @@ sources:
     url: https://github.com/mesonbuild/meson/archive/1.4.0.tar.gz
   1.4.1:
     sha256: a7efc72ecb873c5a62031ade1921a7177b67cfdcb2e9410a7ab023f9e8192f4b
-    url: https://github.com/mesonbuild/meson/archive/1.4.1.tar.gz
+    url:
+    - file:///D://code//Gitea//out//github.com/mesonbuild/meson/archive/1.4.1.tar.gz
+    - https://github.com/mesonbuild/meson/archive/1.4.1.tar.gz
   1.5.0:
     sha256: 781913826fb6f478eb7d77e1942ab3df39444e4c90e9a3523737e215171db469
     url: https://github.com/mesonbuild/meson/archive/1.5.0.tar.gz

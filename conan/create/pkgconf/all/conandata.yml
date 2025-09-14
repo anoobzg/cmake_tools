@@ -46,4 +46,6 @@ sources:
     - https://distfiles.ariadne.space/pkgconf/pkgconf-2.1.0.tar.xz
   2.2.0:
     sha256: b06ff63a83536aa8c2f6422fa80ad45e4833f590266feb14eaddfe1d4c853c69
-    url: https://distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.xz
+    url:
+    - file:///D://code//Gitea//out//distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.xz
+    - https://distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.xz
