@@ -90,7 +90,7 @@ if(WIN32)
 	endif()
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cmake_tools/)
 include_directories(${CMAKE_BINARY_DIR})
 
 
