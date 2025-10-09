@@ -10,7 +10,7 @@ execute_dir = Path(sys.path[0]).resolve()
 source_dir = execute_dir.parent.parent.parent
 
 import log
-import git
+
 logger = log.create_log('pack')
 logger.info("execute_dir : {}".format(execute_dir))
 logger.info("source_dir : {}".format(source_dir))
@@ -66,7 +66,9 @@ for opt, arg in opts:
 
 # build_id use git hash, if not set
 if build_id == "":
-    build_id = git.get_main_hash(source_dir)
+    pass
+    # import git
+    # build_id = git.get_main_hash(source_dir)
 
 cmake_args = "-DPROJECT_VERSION_MAJOR={0} "\
             "-DPROJECT_VERSION_MINOR={1} "\

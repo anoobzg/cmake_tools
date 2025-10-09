@@ -105,4 +105,18 @@ def conan_create(recipe_path, version, build_type, is_static=False):
         cmd = "start /B /wait {}".format(cmd)
 
     os.system(cmd)
+
+def conan_create_cross(recipe_path, version, build_type, host_profile, is_static=False):
+    system = platform.system()
+    
+    cmd = "conan create {} -s build_type={} --version {}".format(str(recipe_path), build_type, version)
+    if is_static == True:
+        cmd = "{} -s compiler.runtime=static".format(cmd)
+
+    cmd = "{} --profile:build=default --profile:host={}".format(cmd, host_profile)
+
+    if system == "Windows":
+        cmd = "start /B /wait {}".format(cmd)
+
+    os.system(cmd)
     

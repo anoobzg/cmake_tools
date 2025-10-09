@@ -80,6 +80,17 @@ function(__redirect_target_output target)
                         )
 endfunction()
 
+function(__redirect_plugin_target_output target) 
+    set_target_properties(${target} PROPERTIES
+                        LIBRARY_OUTPUT_DIRECTORY_DEBUG "${LIB_OUTPUT_DIR}/Debug/plugins/${target}"
+                        ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${LIB_OUTPUT_DIR}/Debug/plugins/${target}"
+                        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${BIN_OUTPUT_DIR}/Debug/plugins/${target}"
+                        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${LIB_OUTPUT_DIR}/Release/plugins/${target}"
+                        ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${LIB_OUTPUT_DIR}/Release/plugins/${target}"
+                        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${BIN_OUTPUT_DIR}/Release/plugins/${target}"
+                        )
+endfunction()
+
 function(__redirect_pyd_output target) 
     set_target_properties(${target} PROPERTIES
                         LIBRARY_OUTPUT_DIRECTORY_DEBUG "${BIN_OUTPUT_DIR}/Debug/"

@@ -90,6 +90,9 @@ if(WIN32)
 	endif()
 endif()
 
+include_directories(${CMAKE_BINARY_DIR})
+
+
 # main parameters
 set(__CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../)    # cmake/entry
 set(__PYTHON_MODULES "${__CMAKE_MODULE_PATH}/../pmodules/")
@@ -97,7 +100,7 @@ set(__BIN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/../bin")
 set(__LIB_OUTPUT_DIR "${CMAKE_BINARY_DIR}/../lib")
 
 include_directories(${__CMAKE_MODULE_PATH}/../)
-include_directories(${CMAKE_BINARY_DIR})
+include_directories(${__CMAKE_MODULE_PATH}/../interface/)
 
 macro(__include_cmake_module cmake_module)
 	# add cmake module from cmake/entry/

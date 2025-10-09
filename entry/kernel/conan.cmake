@@ -35,6 +35,7 @@ macro(__install_conan_requirements)
             endif()
         endif()
 
+		message(STATUS "__install_conan_deps run conan install with args : ${ARGS}")
 		execute_process(
     		COMMAND "conan" ${ARGS}
     		RESULT_VARIABLE RESULT
