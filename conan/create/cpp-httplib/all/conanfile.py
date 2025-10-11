@@ -22,8 +22,8 @@ class CpphttplibConan(ConanFile):
         "with_brotli": [True, False],
     }
     default_options = {
-        "with_openssl": False,
-        "with_zlib": False,
+        "with_openssl": True,
+        "with_zlib": True,
         "with_brotli": False,
     }
     no_copy_source = True
