@@ -38,6 +38,12 @@ macro(__add_symlink target source_dir relative_path)
 			COMMAND if not exist "\"$<TARGET_FILE_DIR:${target}>/${relative_path}/${LAST_NAME}\"" "(" mklink /J "\"$<TARGET_FILE_DIR:${target}>/${relative_path}/${LAST_NAME}\"" "\"${source_dir}\"" ")"
 		)
 	else ()
+		# Linux/Unix: use symbolic link
+		add_custom_command(TARGET ${target} POST_BUILD
+			COMMAND echo "Symlinking the resources directory ${source_dir} into $<TARGET_FILE_DIR:${target}>/${relative_path}/${LAST_NAME}"
+			COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${target}>/${relative_path}"
+			COMMAND test -e "$<TARGET_FILE_DIR:${target}>/${relative_path}/${LAST_NAME}" || ln -sf "${source_dir}" "$<TARGET_FILE_DIR:${target}>/${relative_path}/${LAST_NAME}"
+		)
 	endif ()
 endmacro()
 
