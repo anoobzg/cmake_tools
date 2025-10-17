@@ -28,6 +28,23 @@ macro(__files_group_2 dir folder src)   #support 2 level
 	set(${src} ${_src})
 endmacro()
 
+function(__use_source_group)
+	#message(STATUS "__collect_assign_source_group : ${ARGN}")
+    foreach(source IN ITEMS ${ARGN})
+		#message(STATUS "__collect_assign_source_group item: ${source}")
+        if (IS_ABSOLUTE ${source})
+            #message(WARNING "__collect_assign_source_group must be relative path.")
+			string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" out "${source}")
+			#message(STATUS "${source}  ----> ${out}")
+			set(source ${out})
+        endif()
+        get_filename_component(SOURCE_PATH ${source} PATH)
+        string(REPLACE "/" "\\" SOURCE_PATH_GROUP "${SOURCE_PATH}")
+				
+        source_group("${SOURCE_PATH_GROUP}" FILES "${source}")
+    endforeach()
+endfunction()
+
 macro(__add_symlink target source_dir relative_path)
 	get_filename_component(LAST_NAME "${source_dir}" NAME)
 	__normal_message("...... ${source_dir}, ${LAST_NAME}")
