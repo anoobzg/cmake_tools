@@ -26,6 +26,8 @@ public:
 class FrameworkModule
 {
 public:
+    virtual ~FrameworkModule() {};
+
     virtual std::string name() = 0;
     virtual wxPanel* panel() = 0;
 
