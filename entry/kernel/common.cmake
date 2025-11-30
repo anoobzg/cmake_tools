@@ -100,7 +100,7 @@ set(__BIN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/../bin")
 set(__LIB_OUTPUT_DIR "${CMAKE_BINARY_DIR}/../lib")
 
 include_directories(${__CMAKE_MODULE_PATH}/../)
-# include_directories(${__CMAKE_MODULE_PATH}/../interface/)
+include_directories(${__CMAKE_MODULE_PATH}/../interface/)
 
 macro(__include_cmake_module cmake_module)
 	# add cmake module from cmake/entry/

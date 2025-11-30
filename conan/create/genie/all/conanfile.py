@@ -59,8 +59,59 @@ class GenieConan(ConanFile):
     def _patch_compiler(self, cc, cxx):
         makefile = os.path.join(self.source_folder, "build", f"gmake.{self._os}", "genie.make")
         
-        replace_in_file(self, makefile, "CC  = gcc", f"CC = {cc}" if cc else "")
-        replace_in_file(self, makefile, "CXX = g++", f"CXX = {cxx}" if cxx else "")
+        if not os.path.exists(makefile):
+            # Makefile might not exist yet, try to find it in alternative location
+            alt_makefile = os.path.join(self.source_folder, "build", "gmake.windows", "genie.make")
+            if os.path.exists(alt_makefile):
+                makefile = alt_makefile
+        
+        if not os.path.exists(makefile):
+            self.output.warn(f"Makefile not found at {makefile}, skipping compiler patch")
+            return
+        
+        # Patch compiler settings
+        try:
+            replace_in_file(self, makefile, "CC  = gcc", f"CC = {cc}" if cc else "")
+        except Exception:
+            pass  # Pattern might not exist, that's okay
+        
+        try:
+            replace_in_file(self, makefile, "CXX = g++", f"CXX = {cxx}" if cxx else "")
+        except Exception:
+            pass  # Pattern might not exist, that's okay
+        
+        # Fix linker command to avoid nologo.obj error on Windows with MSVC
+        if is_msvc(self) and self._os == "windows":
+            # Try different LINK variable formats
+            link_patterns = [
+                ("LINK =", "LINK = link /nologo"),
+                ("LINK=", "LINK=link /nologo"),
+                ("LINK := ", "LINK := link /nologo"),
+                ("LINK:=", "LINK:=link /nologo"),
+                ("LINK ?= ", "LINK ?= link /nologo"),
+                ("LINK?=", "LINK?=link /nologo"),
+            ]
+            
+            for pattern, replacement in link_patterns:
+                try:
+                    replace_in_file(self, makefile, pattern, replacement)
+                    break  # Successfully replaced, no need to try others
+                except Exception:
+                    continue  # Try next pattern
+            
+            # Also fix any existing -nologo flags in the file
+            nologo_patterns = [
+                (" -nologo ", " /nologo "),
+                ("-nologo ", "/nologo "),
+                (" -nologo", " /nologo"),
+                ("-nologo", "/nologo"),
+            ]
+            
+            for pattern, replacement in nologo_patterns:
+                try:
+                    replace_in_file(self, makefile, pattern, replacement)
+                except Exception:
+                    pass  # Pattern might not exist, that's okay
 
     @property
     def _genie_config(self):

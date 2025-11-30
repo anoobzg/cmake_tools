@@ -16,8 +16,14 @@ def parse_recipe():
 
 def search_recipe_path(name, version) -> pathlib.Path:
     import yaml
-    recipe_root = pathlib.Path(name)
-    config_file = recipe_root.joinpath("config.yml")
+    # Get the absolute path of the directory containing this util.py file
+    # This is the same directory as create.py (cmake_tools/conan/create/)
+    util_dir = pathlib.Path(__file__).parent.absolute()
+    
+    # Build absolute path to recipe root
+    recipe_root = util_dir / name
+    config_file = recipe_root / "config.yml"
+    print("Searching recipe config_file: {}".format(config_file))
     try:
         with open(config_file, 'r') as file:
             data = yaml.safe_load(file)
@@ -25,7 +31,7 @@ def search_recipe_path(name, version) -> pathlib.Path:
                 versions = data['versions']
                 if version in versions:
                     ver = versions[version]
-                    recipe_root = recipe_root.joinpath(ver['folder'])
+                    recipe_root = recipe_root / ver['folder']
 
     except FileNotFoundError:
         print("FileNotFoundError : {}".format(config_file))

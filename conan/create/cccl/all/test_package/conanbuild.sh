@@ -1,0 +1,1 @@
+. "/d/code/gitee/game-dev/cmake_tools/conan/create/cccl/all/test_package/conanbuildenv-release-x86_64.sh"
