@@ -24,7 +24,9 @@ sources:
     url: https://github.com/gabime/spdlog/archive/v1.14.0.tar.gz
   1.14.1:
     sha256: 1586508029a7d0670dfcb2d97575dcdc242d3868a259742b69f100801ab4e16b
-    url: https://github.com/gabime/spdlog/archive/v1.14.1.tar.gz
+    url:
+    - file:///D://code//Gitea//out//github.com/gabime/spdlog/archive/v1.14.1.tar.gz
+    - https://github.com/gabime/spdlog/archive/v1.14.1.tar.gz
   1.8.5:
     sha256: 944d0bd7c763ac721398dca2bb0f3b5ed16f67cef36810ede5061f35a543b4b8
     url: https://github.com/gabime/spdlog/archive/v1.8.5.tar.gz
