@@ -32,7 +32,7 @@ class SpdlogConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "header_only": False,
+        "header_only": True,
         "wchar_support": False,
         "wchar_filenames": False,
         "wchar_console": False,
